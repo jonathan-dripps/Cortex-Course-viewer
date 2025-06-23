@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>CORTEX VR Course Explorer</title>
+  
+  <script>
+    // WebXR requires https: to work so ensure redirected if needed.
+    if (location.hostname !== 'localhost' && window.location.protocol === 'http:') window.location.protocol = 'https:';
+  </script>
+  
+  <!-- the AFrame library and 3rd party components -->
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-environment-component@1.5.0/dist/aframe-environment-component.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/components/sphere-collider.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.5.4/dist/aframe-extras.controls.min.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls@0.4.3/dist/aframe-blink-controls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/handy-controls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/magnet-helpers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aframe-htmlmesh@2.4.0/build/aframe-html.min.js"></script>
+  <script src="https://unpkg.com/aframe-environment-component@1.3.2/dist/aframe-environment-component.min.js"></script>
+  <!--Added old physics library-->
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.1.0/dist/aframe-physics-system.js"></script>
+  <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
+  <script src="simple-navmesh-constraint.js"></script>
+  
+  <script src="model-utils.js"></script>
+  
+  <!-- Our custom behaviour -->
+  <script src="main.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Setup global objects and components -->
+  <script>
+    // Initialise the occupiedPedestals object globally
+    window.occupiedPedestals = {};
+    
+    // Initialise active content type for each panel
+    window.activePanelContent = {
+      "overview-content": "overview",
+      "main-content": "overview",
+      "compare-content": "overview"
+    };
+    
+    // Initialise active module year
+    window.activeModuleYear = 'all';
+    
+    // Available environments for cycling
+    window.availableEnvironments = [
+      "forest", "tron", "egypt", "japan", "dream", "arches", "threetowers", "poison"
+    ];
+    
+    // Current environment index
+    window.currentEnvironmentIndex = 0;
+    
+    // Original positions and rotations of course objects for reset
+    window.originalObjectStates = [];
+    
+    // Parse and manage course data from JSON
+    window.initializeCourseData = function(jsonFilePath = 'Course-Subject.json') {
+      console.log(`Loading course data from: ${jsonFilePath}`);
+      
+      return fetch(jsonFilePath)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Failed to load course data: ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(courseData => {
+          // Process the data into a more usable format
+          window.courseData = {};
+          
+          courseData.forEach(course => {
+            const acronym = course.acronym;
+            
+            // Create a processed course object with all needed data
+            window.courseData[acronym] = {
+              name: course.course_name,
+              overview: course.overview,
+              short_overview: course.short_overview,
+              
+              // Process entry requirements
+              entry: formatEntryRequirements(course.entry_requirements),
+              
+              // Process modules by year
+              modules: formatModules(course.modules),
+              
+              // Additional information
+              course_content: formatCourseContent(course.course_content),
+              
+              // Parse radar chart data if available
+              radar: course.radar_chart ? parseRadarData(course.radar_chart) : null
+            };
+            
+            console.log(`Processed course data for ${acronym}: ${course.course_name}`);
+          });
+          
+          // Initialise content type buttons based on available data
+          updateContentTypeButtons();
+          
+          console.log("Course data initialisation complete");
+          return true;
+        })
+        .catch(error => {
+          console.error("Error initialising course data:", error);
+          return false;
+        });
+    };
+    
+    // Format entry requirements into a readable string
+    function formatEntryRequirements(entryReqs) {
+      if (!entryReqs) return "Entry requirements information not available";
+      
+      let entryText = "Entry Requirements:\n\n";
+      
+      if (entryReqs.grades) {
+        entryText += `Required Grades: ${entryReqs.grades}\n\n`;
+      }
+      
+      if (entryReqs.a_level) {
+        entryText += `A-Level: ${entryReqs.a_level}\n\n`;
+      }
+      
+      if (entryReqs.irish_leaving_certificate) {
+        entryText += `Irish Leaving Certificate: ${entryReqs.irish_leaving_certificate}\n\n`;
+      }
+      
+      if (entryReqs.international_requirements) {
+        entryText += `International Requirements: ${entryReqs.international_requirements}\n\n`;
+      }
+      
+      if (entryReqs.preferred_subjects) {
+        entryText += `Preferred Subjects: ${entryReqs.preferred_subjects}`;
+      }
+      
+      return entryText;
+    }
+    
+    // Format modules by year into a readable string
+    function formatModules(modules) {
+      if (!modules) return "Module information not available";
+      
+      let moduleText = "Course Modules:\n\n";
+      
+      // Process each year's modules
+      Object.keys(modules).forEach(year => {
+        const yearModules = modules[year];
+        const yearLabel = year.replace('_', ' ').toUpperCase();
+        
+        moduleText += `${yearLabel}:\n`;
+        
+        // Add each module for this year
+        yearModules.forEach(module => {
+          moduleText += `• ${module.module_name} (${module.credits} credits)\n`;
+        });
+        
+        moduleText += "\n";
+      });
+      
+      return moduleText;
+    }
+    
+    // Format course content into a readable string
+    function formatCourseContent(content) {
+      if (!content || !Array.isArray(content)) return "Course content information not available";
+      
+      let contentText = "Course Highlights:\n\n";
+      
+      content.forEach(item => {
+        contentText += `• ${item}\n`;
+      });
+      
+      return contentText;
+    }
+    
+    // Parse radar chart data
+    function parseRadarData(radarString) {
+      if (!radarString) return null;
+      
+      const pairs = radarString.split(';');
+      const radarData = {};
+      
+      pairs.forEach(pair => {
+        const [key, value] = pair.split(':');
+        if (key && value) {
+          radarData[key] = parseInt(value, 10);
+        }
+      });
+      
+      return radarData;
+    }
+    
+    // Update content type buttons based on available data
+    function updateContentTypeButtons() {
+      // Define main content types - these will be consistent for all panels
+      const mainContentTypes = [
+        { id: "overview", label: "Overview", color: "#4ecdc4" },
+        { id: "modules", label: "Modules", color: "#ffd166" },
+        { id: "entry", label: "Entry", color: "#ff6b6b" },
+        { id: "skills", label: "Skills", color: "#06d6a0" }
+      ];
+      
+      // Update global content types
+      window.availableContentTypes = mainContentTypes;
+      
+      console.log("Content type buttons updated with:", mainContentTypes);
+    }
+    
+    // Store original positions and rotations during initialisation
+    window.storeOriginalStates = function() {
+      console.log("Storing original object states");
+      const courseObjects = document.querySelectorAll('[course-object]');
+      courseObjects.forEach((obj) => {
+        const id = obj.id || obj.getAttribute('course-object').course;
+        const position = obj.getAttribute('position');
+        const rotation = obj.getAttribute('rotation') || {x: 0, y: 0, z: 0};
+        const scale = obj.getAttribute('scale') || {x: 1, y: 1, z: 1};
+        
+        window.originalObjectStates.push({
+          id: id,
+          element: obj,
+          position: position,
+          rotation: rotation,
+          scale: scale
+        });
+        
+        console.log(`Stored state for ${id}:`, position, rotation);
+      });
+    };
+    
+    // Reset objects to their original positions
+    window.resetObjects = function() {
+  console.log("Resetting objects to original positions");
+  
+  // Clear all pedestals first
+  for (const pedId in window.occupiedPedestals) {
+    window.occupiedPedestals[pedId] = null;
+  }
+  
+  // Reset panel content
+  const panels = ["overview-content", "main-content", "compare-content"];
+  panels.forEach(panelId => {
+    window.updatePanelContent(panelId, null);
+  });
+  
+  // Reset active module year and panel content
+  window.activeModuleYear = 'all';
+  window.activePanelContent = {
+    "overview-content": "overview",
+    "main-content": "overview", 
+    "compare-content": "overview"
+  };
+  
+  // Get all course objects and reset them to original positions
+  const courseObjects = document.querySelectorAll('[course-object]');
+  
+  courseObjects.forEach((obj) => {
+    const courseId = obj.getAttribute('course-object').course;
+    console.log(`Resetting ${courseId} to original position`);
+    
+    // Find the original state for this object
+    let originalState = null;
+    if (window.originalObjectStates && window.originalObjectStates.length > 0) {
+      originalState = window.originalObjectStates.find(state => state.id === courseId);
+    }
+    
+    // If we have stored original state, use it
+    if (originalState) {
+      console.log(`Using stored position for ${courseId}:`, originalState.position);
+      
+      // Temporarily disable physics to allow forced positioning
+      const hadDynamicBody = obj.hasAttribute('dynamic-body');
+      if (hadDynamicBody) {
+        obj.removeAttribute('dynamic-body');
+      }
+      
+      // Set to original position, rotation, and scale
+      obj.setAttribute('position', originalState.position);
+      obj.setAttribute('rotation', originalState.rotation);
+      obj.setAttribute('scale', originalState.scale);
+      
+      // Re-enable physics after a delay
+      setTimeout(() => {
+        if (hadDynamicBody) {
+          obj.setAttribute('dynamic-body', '');
+        }
+      }, 100);
+      
+    } else {
+      // Fallback: use hardcoded original positions if no stored state
+      console.log(`No stored state found for ${courseId}, using hardcoded positions`);
+      
+      const originalPositions = {
+        'CS': {x: -0.28, y: 1.3, z: -0.10},
+        'SE': {x: -0.20, y: 1.4, z: -0.22},
+        'BIT': {x: -0.07, y: 1.5, z: -0.29},
+        'CIT': {x: 0.07, y: 1.3, z: -0.29},
+        'DS': {x: 0.20, y: 1.4, z: -0.22},
+        'CE': {x: 0.28, y: 1.5, z: -0.10}
+      };
+      
+      const originalRotation = {x: 0, y: 0, z: 0};
+      const originalScale = obj.getAttribute('scale') || {x: 1, y: 1, z: 1};
+      
+      if (originalPositions[courseId]) {
+        // Temporarily disable physics
+        const hadDynamicBody = obj.hasAttribute('dynamic-body');
+        if (hadDynamicBody) {
+          obj.removeAttribute('dynamic-body');
+        }
+        
+        // Set to hardcoded original position
+        obj.setAttribute('position', originalPositions[courseId]);
+        obj.setAttribute('rotation', originalRotation);
+        obj.setAttribute('scale', originalScale);
+        
+        // Re-enable physics after a delay
+        setTimeout(() => {
+          if (hadDynamicBody) {
+            obj.setAttribute('dynamic-body', '');
+          }
+        }, 100);
+      }
+    }
+    
+    // Remove any ongoing animations
+    obj.removeAttribute('animation__pulse');
+    obj.removeAttribute('animation');
+  });
+  
+  console.log("Object reset complete");
+};
+    
+    // Change environment to next in cycle
+    window.changeEnvironment = function() {
+      window.currentEnvironmentIndex = (window.currentEnvironmentIndex + 1) % window.availableEnvironments.length;
+      const newEnvironment = window.availableEnvironments[window.currentEnvironmentIndex];
+      console.log(`Changing environment to: ${newEnvironment}`);
+      
+      const sceneEl = document.querySelector('a-scene');
+      sceneEl.setAttribute('environment', `preset: ${newEnvironment}; groundColor: #445; grid: cross`);
+    };
+    
+    // Make text always face the user
+    AFRAME.registerComponent('face-user', {
+      tick: function () {
+        const camera = document.querySelector('[camera]');
+        if (!camera) return;
+        this.el.object3D.lookAt(camera.object3D.position);
+      }
+    });
+    
+    // Toggle physics collision for controllers when grip is pressed
+    AFRAME.registerComponent('phase-shift', {
+      init: function () {
+        var el = this.el;
+        el.addEventListener('gripdown', function () {
+          el.setAttribute('collision-filter', {collisionForces: true});
+        });
+        el.addEventListener('gripup', function () {
+          el.setAttribute('collision-filter', {collisionForces: false});
+        });
+      }
+    });
+    
+    // INTERACTIVE BUTTON COMPONENT
+    AFRAME.registerComponent('interactive-button', {
+      schema: {
+        label: {type: 'string', default: 'Button'},
+        color: {type: 'color', default: '#3498db'},
+        hoverColor: {type: 'color', default: '#2980b9'},
+        pressColor: {type: 'color', default: '#1c638e'},
+        action: {type: 'string', default: 'none'},
+        targetPanel: {type: 'string', default: ''},
+        contentType: {type: 'string', default: ''},
+        hasSubmenu: {type: 'boolean', default: false},
+        proximityThreshold: {type: 'number', default: 0.1} 
+         // Distance for proximity detection
+      },
+      
+      init: function() {
+        var el = this.el;
+        var data = this.data;
+        
+        // Store initial position for animation
+        this.initialY = el.getAttribute('position').y;
+        this.pressedY = this.initialY - 0.02;
+        this.originalPosition = el.getAttribute('position');
+        
+        // Store the submenu state
+        this.submenuVisible = false;
+        this.submenuEntities = [];
+        
+        // Add button appearance if not already defined
+        if (!el.getAttribute('geometry')) {
+          el.setAttribute('geometry', {
+            primitive: 'box',
+            width: 0.15,
+            height: 0.08,
+            depth: 0.02
+          });
+        }
+        
+        el.setAttribute('material', {
+          color: data.color,
+          shader: 'flat'
+        });
+        
+        // Create button label if none exists
+        const existingText = el.querySelector('a-text');
+        if (!existingText) {
+          var textEntity = document.createElement('a-entity');
+          textEntity.setAttribute('text', {
+            value: data.label,
+            align: 'center',
+            width: 0.6,
+            color: '#ffffff'
+          });
+          textEntity.setAttribute('position', {x: 0, y: 0, z: 0.06});
+          el.appendChild(textEntity);
+        }
+        
+        // Make hoverable
+        el.setAttribute('hoverable', '');
+        
+        // Hover events
+        el.addEventListener('hover-start', this.onHoverStart.bind(this));
+        el.addEventListener('hover-end', this.onHoverEnd.bind(this));
+        
+        // Make grabbable
+        el.setAttribute('grabbable', '');
+        
+        // Grab events for interaction
+        el.addEventListener('grabstart', this.onGrabStart.bind(this));
+        el.addEventListener('grabend', this.onGrabEnd.bind(this));
+        
+        // Store state
+        this.isPressed = false;
+        this.isHovered = false;
+        this.lastPressTime = 0;
+        this.buttonActionTimeout = null;
+        this.handControllers = {
+          right: document.querySelector('#rhand'),
+          left: document.querySelector('#lhand')
+        };
+        
+        // Set up tick for proximity detection
+        this.tick = AFRAME.utils.throttleTick(this.tick, 100, this); // Check every 100ms
+      },
+      
+      tick: function() {
+        if (Date.now() - this.lastPressTime < 1000) return; // Debounce
+        
+        var buttonPosition = new THREE.Vector3();
+        this.el.object3D.getWorldPosition(buttonPosition);
+        
+        // Check proximity with both hand controllers
+        for (var hand in this.handControllers) {
+          if (!this.handControllers[hand]) continue;
+          
+          var handPosition = new THREE.Vector3();
+          this.handControllers[hand].object3D.getWorldPosition(handPosition);
+          
+          var distance = buttonPosition.distanceTo(handPosition);
+          
+          // If hand is close enough, press the button
+          if (distance < this.data.proximityThreshold) {
+            this.pressButton();
+            return; // Only need one press
+          }
+        }
+      },
+      
+      onHoverStart: function() {
+        this.isHovered = true;
+        this.el.setAttribute('material', 'color', this.data.hoverColor);
+      },
+      
+      onHoverEnd: function() {
+        this.isHovered = false;
+        if (!this.isPressed) {
+          this.el.setAttribute('material', 'color', this.data.color);
+        }
+      },
+      
+      onGrabStart: function() {
+        // Visual feedback
+        this.el.setAttribute('material', {
+          color: this.data.pressColor,
+          opacity: 0.7,
+          transparent: true
+        });
+      },
+      
+      onGrabEnd: function() {
+        // Visual feedback
+        this.el.setAttribute('material', {
+          color: this.data.color,
+          opacity: 1.0,
+          transparent: false
+        });
+        
+        // Reset position
+        this.el.setAttribute('position', this.originalPosition);
+        
+        // Trigger action
+        this.pressButton();
+      },
+      
+      pressButton: function() {
+        var el = this.el;
+        
+        // Update state and appearance
+        this.isPressed = true;
+        this.lastPressTime = Date.now();
+        el.setAttribute('material', 'color', this.data.pressColor);
+        
+        // Animate button press - store original position
+        const currentPosition = el.getAttribute('position');
+        
+        // Animate button press down
+        el.setAttribute('position', {
+          x: currentPosition.x,
+          y: this.pressedY,
+          z: currentPosition.z
+        });
+        
+        // Perform the button action
+        this.performAction();
+        
+        // Reset button after delay
+        clearTimeout(this.buttonActionTimeout);
+        this.buttonActionTimeout = setTimeout(() => {
+          this.isPressed = false;
+          el.setAttribute('material', 'color', this.isHovered ? this.data.hoverColor : this.data.color);
+          
+          // Return to original position
+          el.setAttribute('position', {
+            x: currentPosition.x,
+            y: this.initialY,
+            z: currentPosition.z
+          });
+        }, 300);
+      },
+      
+      performAction: function() {
+        const data = this.data;
+        
+        switch(data.action) {
+          case 'change-environment':
+            window.changeEnvironment();
+            console.log('Changed environment');
+            break;
+            
+          case 'reset-scene':
+            window.resetObjects();
+            console.log('Reset objects');
+            break;
+
+
+
+            case 'reset-scene':
+  window.resetObjects();
+  console.log('Reset objects');
+  
+  // Add visual feedback
+  const feedbackText = document.createElement('a-entity');
+  feedbackText.setAttribute('text', {
+    value: 'Resetting...',
+    align: 'center',
+    width: 2,
+    color: '#ffffff'
+  });
+  feedbackText.setAttribute('position', {x: 0, y: 0.3, z: 0.5});
+  feedbackText.setAttribute('face-user', '');
+  
+  this.el.parentNode.appendChild(feedbackText);
+  
+  // Remove the feedback text after a short delay
+  setTimeout(() => {
+    if (feedbackText.parentNode) {
+      feedbackText.parentNode.removeChild(feedbackText);
+    }
+  }, 1500);
+  break;
+            
+          case 'content-change':
+            // Handle content-type changes
+            if (data.targetPanel && data.contentType) {
+              // Update active content type
+              window.activePanelContent[data.targetPanel] = data.contentType;
+              
+              // Get course ID from pedestal
+              let courseId;
+              if (data.targetPanel === "overview-content") {
+                courseId = window.occupiedPedestals["pedestal-overview"];
+              } else if (data.targetPanel === "main-content") {
+                // Main panel doesn't have a direct pedestal - use overview for now
+                courseId = window.occupiedPedestals["pedestal-overview"];
+              } else if (data.targetPanel === "compare-content") {
+                // For comparison panel, we'll need special handling
+                window.updateComparisonPanel();
+                return;
+              }
+              
+              if (courseId) {
+                // Update the panel
+                window.updatePanelContent(data.targetPanel, courseId);
+              }
+            }
+            console.log(`Changed content to ${data.contentType} on ${data.targetPanel}`);
+            break;
+            
+          case 'toggle-submenu':
+            // Toggle submenu if this button has one
+            if (data.hasSubmenu) {
+              if (this.submenuVisible) {
+                this.hideSubmenu();
+                this.submenuVisible = false;
+              } else {
+                this.showSubmenu();
+                this.submenuVisible = true;
+              }
+            }
+            break;
+            
+          case 'year-select':
+            // Handle year selection - data.contentType contains the year
+            const year = data.contentType;
+            const panelId = data.targetPanel;
+            
+            // Store the selected year
+            window.activeModuleYear = year;
+            
+            // Get course ID from pedestal
+            let courseId;
+            if (panelId === "overview-content") {
+              courseId = window.occupiedPedestals["pedestal-overview"];
+            } else if (panelId === "compare-content") {
+              // For comparison, update the comparison with the selected year
+              window.updateComparisonPanel();
+              return;
+            }
+            
+            if (courseId) {
+              // Set content type to "modules" and update
+              window.activePanelContent[panelId] = "modules";
+              window.updatePanelContent(panelId, courseId);
+            }
+            
+            console.log(`Selected year ${year} for panel ${panelId}`);
+            break;
+            
+          default:
+            console.log('Button pressed: ' + this.data.label);
+        }
+      },
+      
+      showSubmenu: function() {
+  // Clear any existing submenu
+  this.hideSubmenu();
+  
+  const el = this.el;
+  const position = el.getAttribute('position');
+  const panelId = this.data.targetPanel;
+  
+  // Get course ID associated with this panel
+  let courseId;
+  if (panelId === "overview-content") {
+    courseId = window.occupiedPedestals["pedestal-overview"];
+  } else if (panelId === "compare-content") {
+    // For comparison panel, use the first course
+    courseId = window.occupiedPedestals["pedestal-compare-1"] || 
+               window.occupiedPedestals["pedestal-compare-2"];
+  }
+  
+  if (!courseId || !window.courseData[courseId]) {
+    console.log("No course found for submenu");
+    return;
+  }
+  
+  // Get module years available for this course
+  const course = window.courseData[courseId];
+  const modules = course.modules;
+  
+  // Parse module text to extract years
+  const yearRegex = /YEAR\s*(\d+):/g;
+  let match;
+  const years = [];
+  
+  while ((match = yearRegex.exec(modules)) !== null) {
+    years.push(match[1]);
+  }
+  
+  if (years.length === 0) {
+    console.log("No years found in module data");
+    return;
+  }
+  
+  // Get position of this button
+  const buttonHeight = 0.08;
+  const buttonSpacing = 0.02;
+  
+  // Create submenu buttons for each year - going UPWARD
+  years.forEach((year, index) => {
+    // Create button entity
+    const subButton = document.createElement('a-entity');
+    
+    // Position above the main button
+    const yOffset = (index + 1) * (buttonHeight + buttonSpacing);
+    
+    subButton.setAttribute('position', {
+      x: position.x,
+      y: position.y + yOffset,
+      z: position.z
+    });
+    
+    // Make it a proper interactive button
+    subButton.setAttribute('interactive-button', {
+      label: `Year ${year}`,
+      color: this.data.color,
+      hoverColor: adjustColorBrightness(this.data.color, 0.9),
+      pressColor: adjustColorBrightness(this.data.color, 0.7),
+      action: 'year-select',
+      targetPanel: this.data.targetPanel,
+      contentType: year
+    });
+    
+    // Add to scene and track for removal
+    el.parentNode.appendChild(subButton);
+    this.submenuEntities.push(subButton);
+  });
+},
+      hideSubmenu: function() {
+        // Remove all submenu entities
+        this.submenuEntities.forEach(entity => {
+          if (entity.parentNode) {
+            entity.parentNode.removeChild(entity);
+          }
+        });
+        
+        this.submenuEntities = [];
+      }
+    });
+    
+    // Helper function to adjust color brightness
+    function adjustColorBrightness(hexColor, factor) {
+      // Convert hex to RGB
+      let r = parseInt(hexColor.slice(1, 3), 16);
+      let g = parseInt(hexColor.slice(3, 5), 16);
+      let b = parseInt(hexColor.slice(5, 7), 16);
+      
+      // Adjust brightness
+      r = Math.min(255, Math.floor(r * factor));
+      g = Math.min(255, Math.floor(g * factor));
+      b = Math.min(255, Math.floor(b * factor));
+      
+      // Convert back to hex
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    }
+    
+    // Enhanced updatePanelContent function with cleaner UI formatting
+  window.updatePanelContent = function(panelTextId, courseId) {
+      const panelText = document.getElementById(panelTextId);
+      if (!panelText) {
+        console.error(`Panel text with id ${panelTextId} not found.`);
+        return;
+      }
+      
+      if (!courseId) {
+        // Set default text if no course is placed
+        if (panelTextId === "overview-content") {
+          updatePanelWithFormattedContent(panelText, {
+            content: "Place a course object\non the pedestal below\nto view details"
+          });
+        } else if (panelTextId === "main-content") {
+          updatePanelWithFormattedContent(panelText, {
+            title: "",
+            isMainDefault: true,
+            content: "Welcome to the Course Explorer!\n\n• Place course shapes on pedestals\n• View detailed information\n• Compare multiple courses\n\nUse the buttons below to:\n• Reset objects\n• Change environment"
+          });
+        } else if (panelTextId === "compare-content") {
+          const courses = window.getCoursesOnPedestals("compare-panel");
+          if (courses.length === 0) {
+            updatePanelWithFormattedContent(panelText, {
+              content: "Place two course objects\non the pedestals below\nto compare them"
+            });
+          } else if (courses.length === 1) {
+            updatePanelWithFormattedContent(panelText, {
+              content: `Selected: ${courses[0].name}\n\nPlace another course\nfor comparison`
+            });
+          }
+        }
+        return;
+      }
+      
+      const courseInfo = window.courseData[courseId];
+      if (!courseInfo) {
+        updatePanelWithFormattedContent(panelText, {
+          content: "Course information\nnot available"
+        });
+        return;
+      }
+      
+      // Get the active content type for this panel
+      const contentType = window.activePanelContent[panelTextId] || "overview";
+      
+      // Set content based on content type
+      if (panelTextId === "overview-content" || panelTextId === "main-content") {
+        if (contentType === "overview") {
+          updatePanelWithFormattedContent(panelText, {
+            content: `${courseInfo.name} (${courseId})\n\n${formatOverviewContent(courseInfo.short_overview || courseInfo.overview)}`
+          });
+        } else if (contentType === "entry") {
+          updatePanelWithFormattedContent(panelText, {
+            content: `${courseInfo.name}\nENTRY REQUIREMENTS\n\n${formatEntryContent(courseInfo.entry)}`
+          });
+        } else if (contentType === "modules") {
+          const selectedYear = window.activeModuleYear || 'all';
+          const yearText = selectedYear === 'all' ? "ALL MODULES" : `YEAR ${selectedYear} MODULES`;
+          updatePanelWithFormattedContent(panelText, {
+            content: `${courseInfo.name}\n${yearText}\n\n${formatModulesContent(courseInfo.modules, selectedYear)}`
+          });
+        } else if (contentType === "skills") {
+          updatePanelWithFormattedContent(panelText, {
+            content: `${courseInfo.name}\nSKILLS PROFILE\n\n${formatSkillsContent(courseInfo.radar)}`
+          });
+        }
+      } else if (panelTextId === "compare-content") {
+        window.updateComparisonPanel();
+      }
+    };
+    
+    // Helper function to update panel with formatted content
+    function updatePanelWithFormattedContent(panelText, data) {
+      // Remove old text
+      panelText.setAttribute("visible", false);
+      
+      // Get parent panel
+      const panel = panelText.parentNode;
+      
+      // Remove any existing formatted content
+      const existingContent = panel.querySelector('.formatted-content');
+      if (existingContent) {
+        existingContent.parentNode.removeChild(existingContent);
+      }
+      
+      // Create formatted content container
+      const contentContainer = document.createElement('a-entity');
+      contentContainer.className = 'formatted-content';
+      contentContainer.setAttribute('position', '0 0 0.06');
+      
+      // Get panel color for theming
+      const panelEl = panel.querySelector('[geometry]');
+      const panelColor = panelEl ? panelEl.getAttribute('material').color : '#4ecdc4';
+      
+      // Add clean background for readability
+      const background = document.createElement('a-plane');
+      background.setAttribute('width', '1.9');
+      background.setAttribute('height', '1.05');
+      background.setAttribute('position', '0 0.1 -0.02');
+      background.setAttribute('material', {
+        color: '#000000',
+        opacity: 0.0,
+        shader: 'flat'
+      });
+      contentContainer.appendChild(background);
+      
+      // Add subtle border
+      const border = document.createElement('a-plane');
+      border.setAttribute('width', '1.85');
+      border.setAttribute('height', '1.0');
+      border.setAttribute('position', '0 0.1 -0.015');
+      border.setAttribute('material', {
+        color: panelColor,
+        opacity: 0.3,
+        shader: 'flat',
+        wireframe: true
+      });
+      contentContainer.appendChild(border);
+      
+      // Add title only for main panel default state
+      if (data.title && data.isMainDefault) {
+        const title = document.createElement('a-text');
+        title.setAttribute('value', data.title);
+        title.setAttribute('align', 'center');
+        title.setAttribute('width', '2.2');
+        title.setAttribute('position', '0 0.45 0');
+        title.setAttribute('color', '#ffffff');
+        title.setAttribute('font', 'kelsonsans');
+        contentContainer.appendChild(title);
+      }
+      
+      // Add main content with better styling
+      if (data.content) {
+        const content = document.createElement('a-text');
+        content.setAttribute('value', data.content);
+        content.setAttribute('align', 'center');
+        content.setAttribute('width', '1.6');
+        content.setAttribute('position', '0 0.1 0');
+        content.setAttribute('color', '#ffffff');
+        content.setAttribute('font', 'kelsonsans');
+        content.setAttribute('wrap-count', '32');
+        contentContainer.appendChild(content);
+      }
+      
+      // Add subtle animation
+      contentContainer.setAttribute('animation__fadein', {
+        property: 'opacity',
+        from: 0,
+        to: 1,
+        dur: 300,
+        easing: 'easeInOutQuad'
+      });
+      
+      panel.appendChild(contentContainer);
+    }
+    
+    // Format overview content to fit
+    function formatOverviewContent(text) {
+      if (!text) return "No overview available";
+      
+      // Truncate and format for display
+      const words = text.split(' ');
+      const maxWords = 50;
+      
+      if (words.length > maxWords) {
+        text = words.slice(0, maxWords).join(' ') + '...';
+      }
+      
+      // Add line breaks for better formatting
+      return text.replace(/\. /g, '.\n\n').trim();
+    }
+    
+    // Format entry requirements for clean display
+    function formatEntryContent(text) {
+      if (!text) return "No entry requirements available";
+      
+      // Extract key information and format 
+      const lines = text.split('\n');
+      let formatted = '══ REQUIREMENTS ══\n\n';
+      
+      let gradesFound = false;
+      let aLevelFound = false;
+      let mathsFound = false;
+      let subjectsFound = false;
+      
+      for (let line of lines) {
+        if (line.includes('Required Grades:') && !gradesFound) {
+          const grades = line.replace('Required Grades:', '').trim();
+          formatted += `📊 GRADES\n${grades}\n\n`;
+          gradesFound = true;
+        } else if (line.includes('A-Level:') && !aLevelFound) {
+          const aLevelText = line.replace('A-Level:', '').trim();
+          // Extract just the grade pattern
+          const gradePattern = aLevelText.match(/[A-B*]{3,}/);
+          if (gradePattern) {
+            formatted += `📚 A-LEVEL\n${gradePattern[0]}`;
+            // Check for additional requirements in the same line
+            if (aLevelText.includes('including')) {
+              formatted += '\n+ preferred subject';
+            }
+            formatted += '\n\n';
+          }
+          aLevelFound = true;
+        } else if (line.includes('GCSE Mathematics') && !mathsFound) {
+          formatted += `🔢 MATHS\nGCSE Grade C/4\n\n`;
+          mathsFound = true;
+        } else if (line.includes('Preferred Subjects:') && !subjectsFound) {
+          const subjects = line.replace('Preferred Subjects:', '').trim();
+          // Shorten the subjects list
+          const subjectList = subjects.split(',').slice(0, 3).join(',');
+          formatted += `⭐ PREFERRED\n${subjectList}...`;
+          subjectsFound = true;
+        }
+      }
+      
+      if (!gradesFound && !aLevelFound) {
+        formatted = "Requirements information\nnot yet available\n\nPlease check the\ncourse handbook";
+      }
+      
+      return formatted.trim();
+    }
+    
+    // Format modules for clean display
+    function formatModulesContent(modulesText, year) {
+      if (!modulesText) return "No modules available";
+      
+      if (year === 'all') {
+        // Show summary of all years with better formatting
+        const lines = modulesText.split('\n');
+        let formatted = '';
+        let currentYear = '';
+        let moduleCount = 0;
+        
+        for (let line of lines) {
+          if (line.includes('YEAR') && line.includes(':')) {
+            if (currentYear) formatted += '\n';
+            currentYear = line.replace(':', '');
+            formatted += `══ ${currentYear} ══\n`;
+            moduleCount = 0;
+          } else if (line.startsWith('•') && moduleCount < 2) {
+            // Extract module name and credits
+            const match = line.match(/•\s*(.*?)\s*\((\d+)\s*credits?\)/);
+            if (match) {
+              const moduleName = match[1].trim();
+              const credits = match[2];
+              // Shorten long module names
+              const shortName = moduleName.length > 25 ? 
+                moduleName.substring(0, 22) + '...' : moduleName;
+              formatted += `• ${shortName}\n  (${credits} credits)\n`;
+            }
+            moduleCount++;
+          }
+        }
+        
+        return formatted.trim();
+      } else {
+        // Show specific year modules with nice formatting
+        const yearModules = formatModulesByYear(modulesText, year);
+        const lines = yearModules.split('\n');
+        let formatted = '';
+        let count = 0;
+        
+        formatted += `══ YEAR ${year} ══\n\n`;
+        
+        for (let line of lines) {
+          if (line.startsWith('•') && count < 6) {
+            // Extract module name and credits
+            const match = line.match(/•\s*(.*?)\s*\((\d+)\s*credits?\)/);
+            if (match) {
+              const moduleName = match[1].trim();
+              const credits = match[2];
+              // Format module name
+              const shortName = moduleName.length > 28 ? 
+                moduleName.substring(0, 25) + '...' : moduleName;
+              formatted += `▸ ${shortName}\n  ${credits} credits\n\n`;
+            }
+            count++;
+          }
+        }
+        
+        if (count === 0) {
+          formatted += "No modules found";
+        }
+        
+        return formatted.trim();
+      }
+    }
+    
+    // Format skills data for visual display with dots
+    function formatSkillsContent(radarData) {
+      if (!radarData) return "No skills data available";
+      
+      let formatted = '';
+      const sortedSkills = Object.entries(radarData)
+        .sort((a, b) => b[1] - a[1]);
+      
+      sortedSkills.forEach(([skill, value]) => {
+        // Create visual rating with dots
+        let dots = '';
+        for (let i = 1; i <= 5; i++) {
+          dots += i <= value ? '●' : '○';
+        }
+        
+        formatted += `${skill}\n${dots}  ${value}/5\n\n`;
+      });
+      
+      return formatted.trim();
+    }
+    // Format modules by specific year or all years
+    function formatModulesByYear(modulesText, year) {
+      if (!modulesText) return "Module information not available";
+      
+      if (year === 'all') {
+        // Return all modules
+        return modulesText;
+      }
+      
+      // Extract just the specified year's modules
+      const lines = modulesText.split('\n');
+      let inSelectedYear = false;
+      let nextYearFound = false;
+      let result = '';
+      
+      // Find the selected year's header
+      const yearHeader = `YEAR ${year}:`;
+      
+      for (let i = 0; i < lines.length; i++) {
+        // Check if this line is a year header
+        if (lines[i].includes('YEAR ')) {
+          if (lines[i].includes(yearHeader)) {
+            inSelectedYear = true;
+            result += lines[i] + '\n';
+          } else if (inSelectedYear) {
+            // We've reached the next year header
+            nextYearFound = true;
+            break;
+          }
+        }
+        // Add lines that belong to the selected year
+        else if (inSelectedYear && !nextYearFound) {
+          result += lines[i] + '\n';
+        }
+      }
+      
+      return result || `No modules found for Year ${year}`;
+    }
+    
+    // Format skills data from radar chart
+    function formatSkillsData(radarData) {
+      if (!radarData) return "Skills information not available";
+      
+      let skillsText = "Key Skills Profile:\n\n";
+      
+      // Sort skills by value (highest first)
+      const sortedSkills = Object.entries(radarData)
+        .sort((a, b) => b[1] - a[1]);
+      
+      // Format each skill with a visual bar
+      sortedSkills.forEach(([skill, value]) => {
+        // Create a visual bar using symbols
+        let bar = '';
+        for (let i = 0; i < 5; i++) {
+          bar += i < value ? '■' : '□';
+        }
+        
+        skillsText += `${skill}: ${bar} (${value}/5)\n`;
+      });
+      
+      return skillsText;
+    }
+    
+    window.updateComparisonPanel = function() {
+  const panelText = document.getElementById("compare-content");
+  if (!panelText) return;
+  
+  const course1 = window.occupiedPedestals["pedestal-compare-1"];
+  const course2 = window.occupiedPedestals["pedestal-compare-2"];
+  
+  if (!course1 && !course2) {
+    updatePanelWithFormattedContent(panelText, {
+      title: "COMPARE MODE",
+      content: "Place two course objects\non the pedestals below\nto compare them"
+    });
+    return;
+  } else if (!course1 || !course2) {
+    const courseId = course1 || course2;
+    const courseInfo = window.courseData[courseId];
+    const courseName = courseInfo ? courseInfo.name : courseId;
+    
+    updatePanelWithFormattedContent(panelText, {
+      title: "COMPARING",
+      content: `Selected: ${courseName}\n\nPlace another course\nfor comparison`
+    });
+    return;
+  }
+  
+  // Get course information
+  const course1Info = window.courseData[course1];
+  const course2Info = window.courseData[course2];
+  
+  if (!course1Info || !course2Info) {
+    updatePanelWithFormattedContent(panelText, {
+      title: "ERROR",
+      content: "Course information\nnot available"
+    });
+    return;
+  }
+  
+  // Get the active content type for comparison
+  const contentType = window.activePanelContent["compare-content"] || "overview";
+  
+  let comparisonData = {
+    title: `${course1} vs ${course2}`,
+    subtitle: contentType.toUpperCase(),
+    content: ''
+  };
+  
+  // Format comparison based on content type
+  if (contentType === "overview") {
+    const overview1 = truncateText(course1Info.short_overview, 60);
+    const overview2 = truncateText(course2Info.short_overview, 60);
+    
+    comparisonData.content = `${course1}:\n${overview1}\n\n${course2}:\n${overview2}`;
+  } else if (contentType === "entry") {
+    // Extract just the grades for cleaner comparison
+    const entry1 = extractGrades(course1Info.entry);
+    const entry2 = extractGrades(course2Info.entry);
+    
+    comparisonData.content = `${course1}:\n${entry1}\n\n${course2}:\n${entry2}`;
+  } else if (contentType === "modules") {
+    const selectedYear = window.activeModuleYear || 'all';
+    comparisonData.subtitle = selectedYear === 'all' ? "MODULE COMPARISON" : `YEAR ${selectedYear} MODULES`;
+    
+    // Get top 2 modules for each course
+    const modules1 = extractTopModules(course1Info.modules, selectedYear, 2);
+    const modules2 = extractTopModules(course2Info.modules, selectedYear, 2);
+    
+    comparisonData.content = `${course1}:\n${modules1}\n\n${course2}:\n${modules2}`;
+  } else if (contentType === "skills") {
+    // Compare top skills
+    if (course1Info.radar && course2Info.radar) {
+      const skills1 = formatTopSkills(course1Info.radar, 3);
+      const skills2 = formatTopSkills(course2Info.radar, 3);
+      
+      comparisonData.content = `${course1}:\n${skills1}\n\n${course2}:\n${skills2}`;
+    } else {
+      comparisonData.content = "Skills data not available\nfor comparison";
+    }
+  }
+  
+  updatePanelWithFormattedContent(panelText, comparisonData);
+};
+
+// Helper function to extract grades from entry requirements
+function extractGrades(entryText) {
+  const lines = entryText.split('\n');
+  for (let line of lines) {
+    if (line.includes('Required Grades:')) {
+      return line.replace('Required Grades:', '').trim();
+    }
+  }
+  return "Grade info not available";
+}
+
+// Helper function to extract top modules
+function extractTopModules(modulesText, year, count) {
+  const moduleLines = formatModulesByYear(modulesText, year).split('\n');
+  let modules = [];
+  
+  for (let line of moduleLines) {
+    if (line.startsWith('•') && modules.length < count) {
+      // Shorten module names for comparison view
+      const moduleName = line.split('(')[0].trim();
+      if (moduleName.length > 25) {
+        modules.push(moduleName.substring(0, 25) + '...');
+      } else {
+        modules.push(line);
+      }
+    }
+  }
+  
+  return modules.join('\n') || "No modules found";
+}
+
+// Helper function to format top skills
+function formatTopSkills(radarData, count) {
+  const sortedSkills = Object.entries(radarData)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, count);
+  
+  let formatted = '';
+  sortedSkills.forEach(([skill, value]) => {
+    let bar = '';
+    for (let i = 1; i <= 5; i++) {
+      bar += i <= value ? '█' : '░';
+    }
+    formatted += `${skill}: ${bar}\n`;
+  });
+  
+  return formatted.trim();
+}
+    
+    // Helper to get courses on a given panel's pedestals
+    window.getCoursesOnPedestals = function(panelElementId) {
+      const courses = [];
+      const panelEl = document.getElementById(panelElementId);
+      if (!panelEl) {
+        console.warn(`Panel with id ${panelElementId} not found.`);
+        return courses;
+      }
+      const pedestals = panelEl.querySelectorAll('.pedestal-top');
+      pedestals.forEach((ped) => {
+        const pedId = ped.getAttribute("id");
+        if (window.occupiedPedestals[pedId]) {
+          const courseId = window.occupiedPedestals[pedId];
+          const courseInfo = window.courseData[courseId];
+          courses.push({id: courseId, name: courseInfo ? courseInfo.name : courseId});
+        }
+      });
+      return courses;
+    };
+    
+    // Helper function to truncate text
+    function truncateText(text, maxLength) {
+      if (!text) return "Not available";
+      if (text.length <= maxLength) return text;
+      
+      return text.substring(0, maxLength) + "...";
+    }
+    
+    // Course object component - combined from working example
+    AFRAME.registerComponent('course-object', {
+      schema: { 
+        course: { type: 'string' }
+      },
+      init: function() {
+        const el = this.el;
+        const courseId = this.data.course;
+        el.setAttribute("data-course", courseId);
+        this.initialPosition = el.getAttribute("position");
+        this.initialRotation = el.getAttribute("rotation") || { x: 0, y: 0, z: 0 };
+
+        el.addEventListener("grab-start", this.onGrabStart.bind(this));
+        el.addEventListener("grab-end", this.onGrabEnd.bind(this));
+        console.log("Initialized course object: " + courseId);
+      },
+      onGrabStart: function(evt) {
+        console.log("Grabbed course object: " + this.data.course);
+        this.removeFromPedestal();
+      },
+      onGrabEnd: function(evt) {
+        console.log("Released course object: " + this.data.course);
+        this.tryPlaceOnPedestal();
+      },
+      removeFromPedestal: function() {
+        const pedestals = document.querySelectorAll(".pedestal-top");
+        const courseId = this.data.course;
+        pedestals.forEach((pedestal) => {
+          const pedId = pedestal.getAttribute("id");
+          if (window.occupiedPedestals[pedId] === courseId) {
+            console.log("Removing " + courseId + " from pedestal " + pedId);
+            window.occupiedPedestals[pedId] = null;
+            const panelId = pedestal.getAttribute("data-panel-id");
+            if (panelId) {
+              window.updatePanelContent(panelId, null);
+            }
+            if (pedId.includes("compare")) {
+              window.updateComparisonPanel();
+            }
+          }
+        });
+      },
+      tryPlaceOnPedestal: function() {
+        const courseId = this.data.course;
+        const pedestals = document.querySelectorAll(".pedestal-top");
+        const elPosition = new THREE.Vector3();
+        this.el.object3D.getWorldPosition(elPosition);
+        let closestPedestal = null;
+        let closestDistance = 0.5; // Adjust threshold as needed
+
+        pedestals.forEach((pedestal) => {
+          const pedId = pedestal.getAttribute("id") || "unnamed-pedestal";
+          const pedPosition = new THREE.Vector3();
+          pedestal.object3D.getWorldPosition(pedPosition);
+          const distance = elPosition.distanceTo(pedPosition);
+          console.log("Distance to " + pedId + ": " + distance);
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closestPedestal = pedestal;
+          }
+        });
+
+        if (closestPedestal) {
+          const pedId = closestPedestal.getAttribute("id") || "unnamed-pedestal";
+          console.log("Placing " + courseId + " on pedestal " + pedId);
+          const pedPosition = new THREE.Vector3();
+          closestPedestal.object3D.getWorldPosition(pedPosition);
+
+          // Snap object to pedestal position with a slight vertical offset:
+          this.el.setAttribute("position", {
+            x: pedPosition.x,
+            y: pedPosition.y + 0.1,
+            z: pedPosition.z
+          });
+          this.el.setAttribute("rotation", "0 0 0");
+          window.occupiedPedestals[pedId] = courseId;
+          const panelId = closestPedestal.getAttribute("data-panel-id");
+          if (panelId) {
+            window.updatePanelContent(panelId, courseId);
+          }
+          if (pedId.includes("compare")) {
+            window.updateComparisonPanel();
+          }
+          this.el.setAttribute("animation__pulse", {
+            property: "scale",
+            from: "1.2 1.2 1.2",
+            to: "1 1 1",
+            dur: 300,
+            easing: "easeOutQuad"
+          });
+        } else {
+          console.log("No suitable pedestal found for " + courseId);
+          // Optionally, reset to original position:
+          // this.el.setAttribute("position", this.initialPosition);
+        }
+      }
+    });
+  </script>
+  
+  <!-- Document ready handler to initialise course data and original object states -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  // Load course data from JSON file
+  window.initializeCourseData()
+    .then(success => {
+      if (success) {
+        console.log("Course data loaded successfully");
+        
+        // Initialize panels with formatted content
+        setTimeout(() => {
+          window.updatePanelContent("overview-content", null);
+          window.updatePanelContent("main-content", null);
+          window.updatePanelContent("compare-content", null);
+        }, 500);
+      } else {
+        console.error("Failed to load course data");
+      }
+    });
+  
+  // Wait a bit for A-Frame to initialise all entities
+  setTimeout(function() {
+    window.storeOriginalStates();
+  }, 1000);
+});
+  </script>
+  
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
+</head>
+<!-- 
+Removed superhands controller support and replaced with handy-controls which supports both controllers and hand tracking
+-->
+<body>
+<!-- Removed:   physx="autoLoad: true; delay: 1000; wasmUrl: https://cdn.jsdelivr.net/gh/c-frame/physx@v0.2.0/wasm/physx.release.wasm; useDefaultScene: true;"
+	 background="color:skyblue;" envrionment="preset: forest; groundColor: #445; grid: cross"-->
+ <a-scene
+	<a-scene physics = "gravity: -9.8" environment="preset: forest; groundColor: #445; grid: cross"
+	xr-mode-ui="XRMode:xr">
+        
+    <a-assets>
+      <!-- Mixins for interactive objects -- using physics library (Not physx)-->
+      <a-mixin id="course-object-interactive" 
+               shadow="receive:true;"
+			   dynamic-body
+               ></a-mixin>
+      
+      <!-- Button mixin-- added new animation to turn button green for a short period of time when pressed -->
+      <a-mixin id="nav-button"
+               geometry="primitive: box; width: 0.15; height: 0.08; depth: 0.02"
+               animation__press="startEvents:press;property:components.material.material.color;type:color;to:green;dur:100;"
+			   animation__release="startEvents:release;property:components.material.material.color;type:color;to:grey;dur:100;"
+               shadow>
+      </a-mixin>
+	  
+	  <a-mixin id="animations" animation__click="property: components.material.material.color; type: color; to: blue; startEvents: click; dur: 500;"></a-mixin>
+      <a-mixin id="blink" blink-controls="rotateOnTeleport:false;cameraRig: #cameraRig; teleportOrigin: #head; collisionEntities:.navmesh;"></a-mixin>
+      <a-mixin id="handle-visual" geometry="width:0.05;height:0.05;depth:0.2"></a-mixin>
+    </a-assets>
+ 
+ 
+    <a-entity
+      id="cameraRig"
+      simple-navmesh-constraint="navmesh:.navmesh;fall:0.5;height:0;exclude:.navmesh-hole;"
+      movement-controls="speed:0.15;camera:#head;"
+      position="0 0 0" rotation="0 -120 0" origin-on-ar-start
+    >
+      <!-- camera -->
+      <a-entity id="head"
+        camera="near:0.01;"
+        look-controls="pointerLockEnabled: false"
+        position="0 1.6 0 "
+      ></a-entity>
+     	
+      <!-- Hand tracking -->
+      <a-entity handy-controls="right:#right-gltf;materialOverride:right; " material="color:white;metalness:0;roughness:0;">
+       
+        
+        <!-- Put an exit button on the wrist for handtracking -->
+        <a-gltf-model src="#watch-gltf" data-left="wrist" position="-1000 0 0">
+          <a-sphere radius="0.02" position="0 0.02 0" sphere-collider="radius:0.02;objects:[data-right$=-tip];" exit-on="hitend" visible="false"></a-sphere>
+        </a-gltf-model>
+        
+        
+        <!-- Use the finger tips for teleporting when the user points -->
+        <a-entity data-right="index-finger-tip" mixin="blink" blink-controls="snapTurn:false;startEvents:pose_point_fuseShort;endEvents:pose_point_fuseLong;cancelEvents:pose_cancel_point;"></a-entity>
+        <a-entity data-left="index-finger-tip"  mixin="blink" blink-controls="snapTurn:false;startEvents:pose_point_fuseShort;endEvents:pose_point_fuseLong;cancelEvents:pose_cancel_point;"></a-entity>
+
+        <!-- The direction hands are facing, we will also attach labels to show the currently detected pose or controller button -->
+        <!-- These also do teleportaion for Blink controls in VR -->
+        <a-entity data-right="ray" mixin="blink" cursor="" raycaster="objects:[html];far:0.3;showLine:false;lineColor:black;">
+          <a-entity position="0 0 -0.22" visible="false" class="pose-label" text="value: Hello World; align: center;"></a-entity>
+        </a-entity>
+        <a-entity data-left="ray" mixin="blink" cursor="" raycaster="objects:[html];far:0.3;showLine:false;lineColor:black;">
+          <a-entity position="0 0 -0.22" visible="false" class="pose-label" text="value: Hello World; align: center;"></a-entity>
+        </a-entity>
+        
+        <!-- These get drawn towards grabable objects, moving the whole hand and the attached elements-->
+        <a-entity id="left-magnet" data-left="grip"  data-magnet="magnet-left"  grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#left-no-magnet;"></a-entity>
+        <a-entity id="right-magnet" data-right="grip" data-magnet="magnet-right" grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#right-no-magnet;"></a-entity>
+    
+        <!-- markers to let us know the real location of the hands, you probably want to make them visible="false" or just make them empty <a-entities> -->
+        <a-entity id="left-no-magnet" data-left="grip" data-no-magnet>
+        <a-entity html="html:#my-interface;cursor:#cursor" position="-0.142 -0.0166 -0.02928" rotation="-80 90 0" scale="0.7 0.7 0.7"></a-entity>
+        </a-entity>
+        <a-entity id="right-no-magnet" data-right="grip" data-no-magnet></a-entity>
+	
+		
+        
+        <!-- Invisible objects at the tips of each finger for physics or intersections 
+			 Changed  physx-body="type: kinematic;" to kinematic-body-->
+        <a-sphere data-right="index-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-right="middle-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-right="ring-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-right="pinky-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-right="thumb-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-left="index-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-left="middle-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-left="ring-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-left="pinky-finger-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+        <a-sphere data-left="thumb-tip" radius="0.004" visible="false" kinematic-body></a-sphere>
+      </a-entity>
+    </a-entity>
+    
+    <!-- Ground collider to prevent objects from falling endlessly -->
+    <a-box static-body width="100" height="0.01" depth="100" visible="false"></a-box>
+    
+    <!-- Invisible boundary walls to keep objects within reach -->
+    <!-- Front boundary (between user and panels) - wider and higher -->
+<a-box static-body position="0 1.5 -2.8" width="10" height="4" depth="0.1" visible="false"></a-box>
+
+<!-- Back boundary (behind the user) - wider and higher -->
+<a-box static-body position="0 1.5 3" width="10" height="4" depth="0.1" visible="false"></a-box>
+
+<!-- Left boundary - taller and deeper -->
+<a-box static-body position="-5 1.5 0" width="0.1" height="4" depth="10" visible="false"></a-box>
+
+<!-- Right boundary - taller and deeper -->
+<a-box static-body position="5 1.5 0" width="0.1" height="4" depth="10" visible="false"></a-box>
+
+<!-- Ceiling to prevent objects from going too high - wider and longer -->
+<a-box static-body position="0 4" width="10" height="0.1" depth="10" visible="false"></a-box>
+
+    <!-- OVERVIEW Panel -->
+    <a-entity id="overview-panel" position="0 1.8 -1.5" rotation="0 0 0">
+      <a-entity class="panel">
+        <a-entity id="overview-curved-panel" position="0 0 0">
+          <a-entity geometry="primitive: plane; width: 2; height: 1.2" 
+                    material="color: #4ecdc4; shader: flat; side: double" 
+                    position="0 0 0" rotation="0 0 0">
+          </a-entity>
+        </a-entity>
+        <a-text value="OVERVIEW" position="0 0.65 0.05" width="2" align="center" color="white" side="double"></a-text>
+        <a-text id="overview-content" class="panel-text" value="Select a course object\nto view details" 
+                position="0 0.35 0.05" width="1.5" align="center" color="white" side="double"></a-text>
+       
+	   <!--Changed pedestal for new phsyx-->
+        <a-entity class="pedestal" position="0 -1.0 0.5">
+          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" static-body="shape: cylinder"></a-cylinder>
+          <a-cylinder class="pedestal-top" id="pedestal-overview" data-panel-id="overview-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
+        </a-entity>
+        
+       <!-- Navigation buttons positioned at the base of the pedestal -->
+<a-entity position="0 -1.1 0.9" rotation="0 0 0">
+  <!-- Overview button -->
+  <a-entity mixin="nav-button" position="-0.45 0 0" 
+           interactive-button="label: Overview; color: #4ecdc4; action: content-change; targetPanel: overview-content; contentType: overview"></a-entity>
+  
+  <!-- Modules button with submenu -->
+  <a-entity mixin="nav-button" position="-0.15 0 0" 
+           interactive-button="label: Modules; color: #ffd166; action: toggle-submenu; targetPanel: overview-content; contentType: modules; hasSubmenu: true"></a-entity>
+  
+  <!-- Entry requirements button -->
+  <a-entity mixin="nav-button" position="0.15 0 0" 
+           interactive-button="label: Entry; color: #ff6b6b; action: content-change; targetPanel: overview-content; contentType: entry"></a-entity>
+  
+  <!-- Skills button -->
+  <a-entity mixin="nav-button" position="0.45 0 0" 
+           interactive-button="label: Skills; color: #06d6a0; action: content-change; targetPanel: overview-content; contentType: skills"></a-entity>
+</a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- MAIN Panel -->
+    <a-entity id="main-panel" position="0 1.8 0" rotation="0 -120 0">
+      <a-entity class="panel" position="0 0 -1.8">
+        <a-entity id="main-curved-panel" position="0 0 0">
+          <a-entity geometry="primitive: plane; width: 2; height: 1.2" 
+                    material="color: #ff6b6b; shader: flat; side: double" 
+                    position="0 0 0" rotation="0 0 0">
+          </a-entity>
+        </a-entity>
+        <a-text value="MAIN" position="0 0.65 0.05" width="2" align="center" color="white" side="double"></a-text>
+        <a-text id="main-content" class="panel-text" value="\n\nPlace a course shape on a pedestal to view details.\n\nUse buttons below to reset objects\nor change the environment." 
+                position="0 0.35 0.05" width="1.5" align="center" color="white" side="double"></a-text>
+        
+        <!-- Environment change button in front of main panel -->
+        <a-entity position="0.4 -0.7 0.5" rotation="0 0 0"
+        geometry="primitive: box; width: 0.2; height: 0.2; depth: 0.05"
+        interactive-button="label: Change\nEnvironment; color: #06d6a0; action: change-environment"
+        shadow></a-entity>
+
+        
+        <!-- Reset button in front of main panel -->
+        <a-entity position="-0.4 -0.7 0.5" rotation="0 0 0"
+                 geometry="primitive: box; width: 0.2; height: 0.2; depth: 0.05"
+                 interactive-button="label: Reset\nObjects; color: #ff9a8b; hoverColor: #ff6b6b; pressColor: #ff4757; action: reset-scene"
+         shadow></a-entity>
+      </a-entity>
+    </a-entity>
+
+    <!-- COMPARE Panel -->
+    <a-entity id="compare-panel" position="0 1.8 0" rotation="0 120 0">
+      <a-entity class="panel" position="0 0 -1.8">
+        <a-entity id="compare-curved-panel" position="0 0 0">
+          <a-entity geometry="primitive: plane; width: 2; height: 1.2" 
+                    material="color: #ffd166; shader: flat; side: double" 
+                    position="0 0 0" rotation="0 0 0">
+          </a-entity>
+        </a-entity>
+        <a-text value="COMPARE" position="0 0.65 0.05" width="2" align="center" color="white" side="double"></a-text>
+        <a-text id="compare-content" class="panel-text" value="Compare courses by placing\ntwo objects on the pedestals" 
+                position="0 0.35 0.05" width="1.5" align="center" color="white" side="double"></a-text>
+        
+        <a-entity class="pedestal" position="-0.4 -1.0 0.5">
+          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body-from-model="type:static;mass:2;"></a-cylinder>
+          <a-cylinder class="pedestal-top" id="pedestal-compare-1" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
+        </a-entity>
+        
+        <a-entity class="pedestal" position="0.4 -1.0 0.5">
+          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body-from-model="type:static;mass:2;"></a-cylinder>
+          <a-cylinder class="pedestal-top" id="pedestal-compare-2" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
+        </a-entity>
+        
+        
+        <!-- Navigation buttons for compare panel -->
+<a-entity position="0 -1.1 0.9" rotation="0 0 0">
+  <!-- Overview button -->
+  <a-entity mixin="nav-button" position="-0.45 0 0" 
+           interactive-button="label: Overview; color: #4ecdc4; action: content-change; targetPanel: compare-content; contentType: overview"></a-entity>
+  
+  <!-- Modules button with submenu -->
+  <a-entity mixin="nav-button" position="-0.15 0 0" 
+           interactive-button="label: Modules; color: #ffd166; action: toggle-submenu; targetPanel: compare-content; contentType: modules; hasSubmenu: true"></a-entity>
+  
+  <!-- Entry requirements button -->
+  <a-entity mixin="nav-button" position="0.15 0 0" 
+           interactive-button="label: Entry; color: #ff6b6b; action: content-change; targetPanel: compare-content; contentType: entry"></a-entity>
+  
+  <!-- Skills button -->
+  <a-entity mixin="nav-button" position="0.45 0 0" 
+           interactive-button="label: Skills; color: #06d6a0; action: content-change; targetPanel: compare-content; contentType: skills"></a-entity>
+</a-entity>
+      </a-entity>
+    </a-entity>
+    
+    <!-- Course Objects - Arranged around user -  Added handles to each object to be grabbed by hands
+		 Objects use physics library not physx-->
+
+    <!-- Computer Science (Cube) -->
+    <a-box position="-0.28 0.3 -0.10" color="#4ecdc4" scale="0.2 0.2 0.2"
+            mixin="course-object-interactive" class="interactive"
+            course-object="course: CS" dynamic-body>
+		<a-entity id="CS handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" position="0 0.1 -0.1" class= magnet-left magnet-right rotation="0 90 0"></a-entity>		
+		<a-entity position="0 1.5 0" face-user text="value: CS; align: center; color: white; width: 30"></a-entity>
+		<a-entity geometry="primitive: box; width: 0.55; height: 0.55; depth: 0.55" 
+                material="color: #4ecdc4; opacity: 0.3; transparent: true"></a-entity>
+    </a-box>
+      
+    <!-- Software Engineering (Pyramid)
+	
+	-->
+    <a-tetrahedron  position="-0.20 0.4 -0.22" color="#ff6b6b" radius="0.15"
+                    mixin="course-object-interactive" 
+                    course-object="course: SE" dynamic-body= "mass: 2"> 
+		<a-entity id="SE handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
+		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
+        <a-entity geometry="primitive: sphere; radius: 0.2" 
+                material="color: #ff6b6b; opacity: 0.0; transparent: true"></a-entity>
+    </a-tetrahedron>
+      
+    <!-- Business IT (Sphere) -->
+    <a-sphere position="-0.07 0.5 -0.29" color="#ffd166" radius="0.1"
+              mixin="course-object-interactive" 
+              course-object="course: BIT" dynamic-body>
+		<a-entity id="BIT handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
+		<a-entity position="0 0.3 0" face-user text="value: BIT; align: center; color: white; width: 5"></a-entity>
+		<a-entity geometry="primitive: sphere; radius: 0.15" 
+                material="color: #ffd166; opacity: 0.0; transparent: true"></a-entity>
+    </a-sphere>
+    
+    <!-- Computing & IT (Cylinder) -->
+    <a-cylinder position="0.07 0.3 -0.29" color="#06d6a0" height="0.2" radius="0.1"
+                mixin="course-object-interactive" class="interactive"
+                course-object="course: CIT">
+		<a-entity id="CIT handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
+      <a-entity position="0 0.3 0" face-user text="value: CIT; align: center; color: white; width: 5"></a-entity>
+      <a-entity geometry="primitive: cylinder; height: 0.25; radius: 0.15" 
+                material="color: #06d6a0; opacity: 0.0; transparent: true"></a-entity>
+    </a-cylinder>
+      
+    <!-- Data Science (Octahedron) -->
+    <a-octahedron position="0.20 0.4 -0.22" color="#ff9a8b" radius="0.12"
+                  mixin="course-object-interactive" class="interactive"
+                  course-object="course: DS">
+		<a-entity id="DS handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
+      <a-entity position="0 0.3 0" face-user text="value: DS; align: center; color: white; width: 5"></a-entity>
+      <a-entity geometry="primitive: sphere; radius: 0.18" 
+                material="color: #ff9a8b; opacity: 0.0; transparent: true"></a-entity>
+    </a-octahedron>
+      
+    <!-- Computer Engineering (Torus) -->
+    <a-torus toggle physics position="0 -1.5 0.5" color="#9896f1" radius="0.1" radius-tubular="0.03"
+              mixin="course-object-interactive" class="interactive" physx-body ="type: dynamic"
+              course-object="course: CE">
+		<a-entity id="CE handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
+      <a-entity position="0 0.3 0" face-user text="value: CE; align: center; color: white; width: 5"></a-entity>
+      <a-entity geometry="primitive: sphere; radius: 0.15" 
+                material="color: #9896f1; opacity: 0.0; transparent: true"></a-entity>
+    </a-torus>
+  </a-scene>
+</body>
+</html>

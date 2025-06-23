@@ -1,0 +1,895 @@
+[
+  {
+    "course_name": "Computer Science",
+    "acronym": "CS",
+    "overview": "From driving cancer research forward to accurately predicting the weather, Computer Scientists are powering progress. In fact everything from social care to cybersecurity or even space travel, relies on the talents of Computer Science graduates. We would say the sky is the limit, but we're already well beyond that! A degree in Computer Science teaches you to approach technical problems creatively. It also gives you the information and understanding to find ground-breaking solutions to the world's emerging problems. The course will also equip you with the practical skills to approach the specification, design, construction and use of computer systems. In an ever changing technological climate, the Computer Science degree programme is constantly evolving to anticipate emerging digital breakthroughs. You will cover topics like machine learning, augmented reality and data analytics, but also receive a grounding in skills like hardware architecture, software engineering and simulation & modelling too. Employer experience is paramount in this this course, from day one you will learn from prospective employers about 'real world' challenges. Industry placements, company sponsored hackathons and project based learning form a core part of the curriculum and vastly improve our graduate employability rates.",
+    "short_overview": "Computer Science at Queen's equips you with the skills to approach technical problems creatively and find innovative solutions in areas from healthcare to cybersecurity. You'll learn practical skills in software engineering, data analytics, and machine learning while gaining valuable industry experience through placements with our 500+ partner companies.",
+    "course_content": [
+      "These degrees aim to teach the fundamental principles of Computer Science, together with the necessary skills, tools and techniques to enable our graduates to embark on careers as professional software engineers, or to become suitably qualified to undertake research in Computer Science.",
+      "Industrial engagement forms an integral part, balancing academic theory with practical learning.",
+      "Students spend a year on a paid, full-time placement with one of 500+ local, national and international employers.",
+      "The School has a world class reputation for research and provides excellent facilities, including access to major research centres.",
+      "Students have access to world class laboratories equipped with hundreds of PCs and specialized software packages.",
+      "Assessment varies by module, including project work, written assignments, and examinations."
+    ],
+    "modules": {
+      "year_1": [
+        {
+          "module_name": "Introduction to Computer Architecture",
+          "description": "Fundamental concepts of computer architecture, hardware organization, and system design principles",
+          "credits": "20"
+        },
+        {
+          "module_name": "Data Driven Systems",
+          "description": "Introduction to data management, processing techniques and their applications in computing",
+          "credits": "20"
+        },
+        {
+          "module_name": "Fundamentals of Maths for Computing",
+          "description": "Essential mathematical concepts underpinning computer science theory and practice",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Cyber Security",
+          "description": "Core principles of security in computing systems and networks",
+          "credits": "20"
+        },
+        {
+          "module_name": "Procedural Programming",
+          "description": "Introduction to procedural programming concepts and problem-solving techniques",
+          "credits": "20"
+        },
+      
+        {
+          "module_name": "Object Oriented Programming",
+          "description": "Introduction to object-oriented design principles and implementation",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Embedded Systems",
+          "description": "Fundamentals of embedded systems design and programming",
+          "credits": "20"
+        }
+      ],
+      "year_2": [
+        {
+          "module_name": "Software Engineering",
+          "description": "Principles and practices of professional software development and project management",
+          "credits": "20"
+        },
+        {
+          "module_name": "Algorithms and Data Structures",
+          "description": "Analysis and implementation of efficient algorithms and data organization methods",
+          "credits": "20"
+        },
+        {
+          "module_name": "Database Systems",
+          "description": "Design and implementation of relational databases and query languages",
+          "credits": "20"
+        },
+        {
+          "module_name": "Computer Networks",
+          "description": "Fundamentals of network architecture, protocols and distributed systems",
+          "credits": "20"
+        }
+      ],
+      "year_3": [
+        {
+          "module_name": "Professional Experience",
+          "description": "Full-year paid industry placement with one of 500+ partner companies",
+          "credits": "120"
+        }
+      ],
+      "year_4": [
+        {
+          "module_name": "Final Year Project",
+          "description": "Independent research and development project addressing a significant computing challenge",
+          "credits": "40"
+        },
+        {
+          "module_name": "Machine Learning",
+          "description": "Theoretical foundations and practical applications of machine learning algorithms",
+          "credits": "20"
+        },
+        {
+          "module_name": "Advanced Software Engineering",
+          "description": "Contemporary approaches to large-scale software development and system architecture",
+          "credits": "20"
+        },
+        {
+          "module_name": "Concurrent Programming",
+          "description": "Design and implementation of multi-threaded applications and parallel computing",
+          "credits": "20"
+        }
+      ]
+    },
+    "radar_chart":"Programming:5;Mathematics:4;Problem Solving:5;Systems Design:3;Data Analysis:4;Project Management:3",
+    "entry_requirements": {
+      "academic_qualification": "A-levels, BTEC, or equivalent qualifications",
+      "grades": "AAB at A-level, or 112 UCAS points",
+      "other_requirements": "GCSE Mathematics grade C/4 or higher",
+      "a_level": "BBB including at least one preferred A-level (see list below) + GCSE Mathematics grade C/4 OR ABB including at least one relevant A-level (see list below) + GCSE Mathematics grade C/4 A maximum of one BTEC/OCR Single Award or AQA Extended Certificate will be accepted as part of an applicant's portfolio of qualifications with a Distinction* being equated to a grade A at A-level and a Distinction being equated to a grade B at A-level.",
+      "irish_leaving_certificate": "H3H3H3H3H4H4/H3H3H3H3H3 including at least one preferred Leaving Certificate subject at grade H3 (see list below) + Ordinary Level grade O4 in Mathematics if not offered at Higher Level OR H3H3H3H3H3H3/H2H3H3H3H3 including at least one relevant Leaving Certificate subject at grade H3 (see list below) + Ordinary Level grade O4 in Mathematics",
+      "international_requirements": "For students whose first language is not English, an English language qualification is required, such as an IELTS score of 6.5 with a minimum of 5.5 in each test component.",
+      "preferred_subjects": "Computer Science, Computing, Digital Technology, ICT, Mathematics, Further Mathematics, Physics, Technology and Design, or Software Systems Development."
+    }
+  },
+  {
+    "course_name": "Software Engineering with Placement",
+    "acronym": "SE",
+    "overview": "Without software engineering, you wouldn't be reading this page. Software innovation has transformed the way we think about, and interact with, technology. In fact, all the forms of communication, interaction and access that we take for granted today are made possible by software in some shape or form. Which is why the demand for software engineers has never been greater. From improving the efficiency of the apps we use in order to make them more sustainable, to developing scalable and secure app infrastructure, Software Engineers have skills that drive innovation. In essence, they are problem solvers with the ability to take an existing software system and creatively refine, enhance and transform it into something even better. This degree programme is designed to equip you with the analytical, reasoning and practical skills you will need to design, develop and deploy large software systems. Plus, our project based learning approach enables you to craft a degree pathway that fits your own areas of interest. You could find yourself working on anything from apps to virtual and augmented reality; lifesaving smart medical implants to consumer space travel or automated intelligence. Employer experience is embedded into this course and allows students to engage and learn from prospective employers from day one. Through placements, sponsored projects and hackathons, you will engage with employers and begin making a difference to real world problems.",
+    "short_overview": "Software Engineering teaches you the analytical, reasoning and practical skills to design, develop and deploy large software systems. Our project-based learning approach allows you to work on everything from apps to virtual reality while gaining valuable industry experience through placements with our 500+ employer partners.",
+    "course_content": [
+      "These degrees teach the fundamental principles of Software Engineering, together with the necessary skills, tools and techniques to enable our graduates to embark on careers as professional software engineers.",
+      "Special emphasis is placed on individual and team-based software development projects in preparation for industry.",
+      "Students spend a year on a paid, full-time placement with one of 500+ local, national and international employers.",
+      "The course emphasizes the professional and practical application of software engineering with strong links to local companies.",
+      "Project-based learning enables students to craft a degree pathway that fits their own areas of interest."
+    ],
+    "modules": {
+      "year_1": [
+        {
+          "module_name": "Introduction to Computer Architecture",
+          "description": "Fundamental concepts of computer architecture and system design principles",
+          "credits": "20"
+        },
+        {
+          "module_name": "Data Driven Systems",
+          "description": "Introduction to data management and processing techniques",
+          "credits": "20"
+        },
+        {
+          "module_name": "Fundamentals of Maths for Computing",
+          "description": "Essential mathematical concepts for software engineering",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Cyber Security",
+          "description": "Core principles of security in computing systems",
+          "credits": "20"
+        },
+        {
+          "module_name": "Procedural Programming",
+          "description": "Introduction to procedural programming concepts",
+          "credits": "20"
+        },
+        {
+          "module_name": "Programming",
+          "description": "Introduction to programming and algorithm development",
+          "credits": "20"
+        },
+        {
+          "module_name": "Object Oriented Programming",
+          "description": "Introduction to object-oriented design principles",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Embedded Systems",
+          "description": "Fundamentals of embedded systems design and programming",
+          "credits": "20"
+        }
+      ],
+      "year_2": [
+        {
+          "module_name": "Data Structures and Algorithms",
+          "description": "Analysis and implementation of efficient data structures and algorithms",
+          "credits": "20"
+        },
+        {
+          "module_name": "Service-Oriented Programming",
+          "description": "Development of service-oriented architectures and applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Software Engineering and Systems Development",
+          "description": "Principles and practices of professional software development",
+          "credits": "40"
+        },
+        {
+          "module_name": "Professional and Transferrable Skills",
+          "description": "Development of key professional skills for the workplace",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Artificial Intelligence and Machine Learning",
+          "description": "Foundations of AI and machine learning applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Systems Security and Cryptography",
+          "description": "Principles of secure systems and cryptographic techniques",
+          "credits": "20"
+        },
+        {
+          "module_name": "Networks and Protocols",
+          "description": "Fundamentals of computer networks and communication protocols",
+          "credits": "20"
+        }
+      ],
+      "year_3": [
+        {
+          "module_name": "Year of Professional Experience",
+          "description": "Full-year paid industry placement with one of 500+ partner companies",
+          "credits": "120"
+        }
+      ],
+      "year_4": [
+        {
+          "module_name": "Software Engineering Project",
+          "description": "Capstone project applying software engineering principles to a real-world problem",
+          "credits": "40"
+        },
+        {
+          "module_name": "Team-based Software Innovation",
+          "description": "Collaborative development of innovative software solutions",
+          "credits": "20"
+        },
+        {
+          "module_name": "Cloud Computing",
+          "description": "Design and implementation of cloud-based applications and services",
+          "credits": "20"
+        },
+        {
+          "module_name": "Malware Analysis",
+          "description": "Techniques for analyzing and defending against malicious software",
+          "credits": "20"
+        },
+        {
+          "module_name": "Software Testing",
+          "description": "Methods and tools for ensuring software quality through testing",
+          "credits": "20"
+        },
+        {
+          "module_name": "Video Analytics and Machine Learning",
+          "description": "Application of ML techniques to video processing and analysis",
+          "credits": "20"
+        },
+        {
+          "module_name": "Advanced Computer Architecture",
+          "description": "Advanced concepts in computer system design and implementation",
+          "credits": "20"
+        },
+        {
+          "module_name": "Network Security",
+          "description": "Security principles and practices for computer networks",
+          "credits": "20"
+        },
+        {
+          "module_name": "Concurrent Programming",
+          "description": "Design and implementation of multi-threaded applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Software Design Principles, Patterns, Practice and Innovation",
+          "description": "Advanced software design methodologies and patterns",
+          "credits": "20"
+        },
+        {
+          "module_name": "Secure Software Development",
+          "description": "Principles and practices for developing secure software applications",
+          "credits": "20"
+        }
+      ]
+    },
+    "radar_chart":"Programming:5;Mathematics:4;Problem Solving:5;Systems Design:3;Data Analysis:4;Project Management:3",
+    "entry_requirements": {
+      "academic_qualification": "A-levels, BTEC, or equivalent qualifications",
+      "grades": "BBB/ABB at A-level, or equivalent",
+      "other_requirements": "GCSE Mathematics grade C/4 or higher",
+      "a_level": "BBB including at least one preferred A-level + GCSE Mathematics grade C/4 OR ABB including at least one relevant A-level (see list below) + GCSE Mathematics grade C/4 A maximum of one BTEC/OCR Single Award or AQA Extended Certificate will be accepted as part of an applicant's portfolio of qualifications with a Distinction* being equated to a grade A at A-level and a Distinction being equated to a grade B at A-level.",
+      "irish_leaving_certificate": "H3H3H3H3H4H4/H3H3H3H3H3 including at least one preferred Leaving Certificate subject at grade H3 (see list below) + Ordinary Level grade O4 in Mathematics if not offered at Higher Level OR H3H3H3H3H3H3/H2H3H3H3H3 including at least one relevant Leaving Certificate subject at grade H3 (see list below) + Ordinary Level grade O4 in Mathematics",
+      "international_requirements": "For students whose first language is not English, an English language qualification is required, such as an IELTS score of 6.5 with a minimum of 5.5 in each test component.",
+      "preferred_subjects": "Computer Science, Computing, Digital Technology, ICT, Mathematics, Further Mathematics, Physics, Technology and Design, or Software Systems Development."
+    }
+  },
+  {
+    "course_name": "Business Information Technology Incl Professional Experience",
+    "acronym": "BIT",
+    "overview": "Much of today's business operates in a dynamic, fast-paced and technologically advanced environment. With the future of business looking set to rely even more heavily on technology. Companies require talented individuals who can bridge the gap between business management and technology, forge new connections and foster continuing innovation in their industries. Studying Business Information Technology at Queen's gives you a sound knowledge of information technology fundamentals and their application in business. Additionally, this course provides a firm foundation in business management. Delivered in partnership with Queen's Management School (QMS) this allows our graduates to address a growing global need for capable and confident leaders in varied business environments. Belfast is uniquely placed to offer opportunities for Business Information Technology graduates. There are more software companies located in Northern Ireland than in any other part of the UK, outside of London. Additionally, Queen's University has links with businesses across the globe, including over 500 local, national and international IT companies. Employer experience is embedded into this course and allows students to engage and learn from prospective employers from day one.",
+    "short_overview": "Business Information Technology equips you with the knowledge to bridge the gap between business management and technology. This joint program with Queen's Management School gives you a sound foundation in IT fundamentals and their business applications, preparing you for leadership roles in today's technology-driven business environment.",
+    "course_content": [
+      "The Single Honours Business Information Technology degree comprises compulsory modules together with optional modules.",
+      "Students spend a year gaining professional experience in industry in a paid full-time post.",
+      "The School has excellent links with over 500 local, national and international employers.",
+      "Belfast is in the world's top 10 Digital Economies of the Future - the only UK city outside London to be listed.",
+      "The course offers a range of learning experiences including team-based projects, lectures, tutorials, and practical sessions."
+    ],
+    "modules": {
+      "year_1": [
+        {
+          "module_name": "Accounting",
+          "description": "Introduction to financial and management accounting principles",
+          "credits": "20"
+        },
+        {
+          "module_name": "Databases",
+          "description": "Database design concepts and implementations for business applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Organisational Behaviour",
+          "description": "Understanding behavior in organizational settings",
+          "credits": "20"
+        },
+        {
+          "module_name": "Fundamentals of Programming",
+          "description": "Introduction to programming concepts and problem-solving",
+          "credits": "20"
+        },
+        {
+          "module_name": "An Introduction to Economics",
+          "description": "Fundamental economic principles and their business applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Business, Government and Society",
+          "description": "Relationships between business operations and wider societal contexts",
+          "credits": "20"
+        },
+        {
+          "module_name": "Marketing",
+          "description": "Core principles and practices of marketing in business",
+          "credits": "20"
+        }
+      ],
+      "year_2": [
+        {
+          "module_name": "Professional Computing Practice",
+          "description": "Professional standards and practices in the IT industry",
+          "credits": "20"
+        },
+        {
+          "module_name": "Software Development, Processes and Practice",
+          "description": "Software development methodologies and implementation",
+          "credits": "20"
+        },
+        {
+          "module_name": "Information Management",
+          "description": "Managing information resources in organizations",
+          "credits": "20"
+        },
+        {
+          "module_name": "User Experience Design",
+          "description": "Principles of user-centered design for digital interfaces",
+          "credits": "20"
+        },
+        {
+          "module_name": "Operations Management",
+          "description": "Managing business processes and operations efficiently",
+          "credits": "20"
+        },
+        {
+          "module_name": "International Business",
+          "description": "Business operations in global contexts",
+          "credits": "20"
+        },
+        {
+          "module_name": "Human Resource Management",
+          "description": "Managing human capital in organizations",
+          "credits": "20"
+        },
+        {
+          "module_name": "Data Statistics",
+          "description": "Statistical methods for business data analysis",
+          "credits": "20"
+        },
+        {
+          "module_name": "Leading for Change",
+          "description": "Leadership principles for driving organizational change",
+          "credits": "20"
+        }
+      ],
+      "year_3": [
+        {
+          "module_name": "Year of Professional Experience",
+          "description": "Full-year paid industry placement with one of 500+ partner companies",
+          "credits": "120"
+        }
+      ],
+      "year_4": [
+        {
+          "module_name": "Working on a Project",
+          "description": "Applied project integrating business and IT knowledge",
+          "credits": "40"
+        },
+        {
+          "module_name": "Information Systems in Organisations",
+          "description": "Advanced implementation of IT systems in business contexts",
+          "credits": "20"
+        },
+        {
+          "module_name": "Supply Chain Management",
+          "description": "Management of product and service supply chains",
+          "credits": "20"
+        },
+        {
+          "module_name": "Business Ethics",
+          "description": "Ethical considerations in business decision-making",
+          "credits": "20"
+        },
+        {
+          "module_name": "Innovation Management",
+          "description": "Managing innovation processes in organizations",
+          "credits": "20"
+        },
+        {
+          "module_name": "Public Sector Management",
+          "description": "Management principles specific to public sector organizations",
+          "credits": "20"
+        },
+        {
+          "module_name": "Strategic Management",
+          "description": "Formulation and implementation of organizational strategy",
+          "credits": "20"
+        },
+        {
+          "module_name": "Information Policy",
+          "description": "Policy frameworks for information management and governance",
+          "credits": "20"
+        },
+        {
+          "module_name": "Customer Behaviour",
+          "description": "Analysis of customer decision-making and interactions",
+          "credits": "20"
+        },
+        {
+          "module_name": "Data Analysis and Visualisation",
+          "description": "Advanced techniques for analyzing and presenting data",
+          "credits": "20"
+        },
+        {
+          "module_name": "Network Security",
+          "description": "Security principles for business networks and systems",
+          "credits": "20"
+        }
+      ]
+    },
+    "radar_chart":"Programming:3;Mathematics:2;Problem Solving:4;Systems Design:3;Data Analysis:4;Project Management:5",
+    "entry_requirements": {
+      "academic_qualification": "A-levels, BTEC, or equivalent qualifications",
+      "grades": "ABB at A-level, or equivalent",
+      "other_requirements": "GCSE Mathematics grade C/4 or higher",
+      "a_level": "ABB + GCSE Mathematics grade C/4. A maximum of one BTEC/OCR Single Award or AQA Extended Certificate will be accepted as part of an applicant's portfolio of qualifications with a Distinction* being equated to a grade A at A-level and a Distinction being equated to a grade B at A-level.",
+      "irish_leaving_certificate": "H3H3H3H3H3H3/H2H3H3H3H3 + if not offered at Higher Level then Ordinary Level grade O4 in Mathematics",
+      "international_requirements": "33 points overall in International Baccalaureate, including 6,5,5 at Higher Level + if not offered at Higher Level/GCSE, then Standard Level grade 4 in Mathematics",
+      "preferred_subjects": "Mathematics, Economics, Business Studies, Computing/Computer Science, Physics or Software Systems Development."
+    }
+  },
+  {
+    "course_name": "Computing and Information Technology Incl Professional Experience",
+    "acronym": "CIT",
+    "overview": "Technology advances at a rapid pace and businesses must adapt if they are to compete in an ever expanding global economy. A degree in Computer and Information Technology gives you a grounding in a broad range of information technology subjects as well as the skills to manage and administrate complex digital infrastructure. The course develops applied computing, interpersonal, communication and IT skills and readies graduates to develop, select, deliver, manage and maintain cutting-edge IT infrastructures and advanced IT systems. It is ideal for students who are interested in IT and are keen to learn programming, web development, database design and human-computer interaction, it also requires team working skills and nuanced interpersonal interaction. This is further enhanced by a placement year, where you will put into practice the skills you have acquired. In fact, employer experience is embedded into every aspect of Computer and Information Technology at Queen's. This allows students to engage and learn from prospective employers from day one, vastly improving our graduate employability rates.",
+    "short_overview": "Computing and Information Technology equips you with the skills to manage and administer complex digital infrastructures and IT systems. You'll learn programming, web development, database design, and human-computer interaction while developing teamwork and communication skills, enhanced by a year of professional experience with industry partners.",
+    "course_content": [
+      "This degree aims to teach the necessary skills, tools and techniques to enable our graduates to embark on careers as IT professionals in a wide variety of roles.",
+      "The program involves extensive practical work with a significant portion completed in team-orientated projects.",
+      "There is an emphasis on user experience and information security throughout the degree.",
+      "Students undertake a full year's paid placement to gain practical experience as an IT professional.",
+      "The course covers themes including Programming, Computer Architecture, Computer Networks, Database Systems, Human-Computer Interaction, IT Infrastructure, and Web-Based Development."
+    ],
+    "modules": {
+      "year_1": [
+        {
+          "module_name": "Introduction to Computer Architecture",
+          "description": "Fundamentals of computer organization and system architecture",
+          "credits": "20"
+        },
+        {
+          "module_name": "Data Driven Systems",
+          "description": "Introduction to database systems and data management",
+          "credits": "20"
+        },
+        {
+          "module_name": "Fundamentals of Maths for Computing",
+          "description": "Essential mathematical concepts for computing applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Cyber Security",
+          "description": "Basics of security principles and practices in computing",
+          "credits": "20"
+        },
+        {
+          "module_name": "Procedural Programming",
+          "description": "Introduction to procedural programming concepts and techniques",
+          "credits": "20"
+        },
+        {
+          "module_name": "Programming",
+          "description": "Fundamentals of programming and algorithm development",
+          "credits": "20"
+        },
+        {
+          "module_name": "Object Oriented Programming",
+          "description": "Principles of object-oriented design and implementation",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Embedded Systems",
+          "description": "Basics of embedded systems and their applications",
+          "credits": "20"
+        }
+      ],
+      "year_2": [
+        {
+          "module_name": "User Experience Design",
+          "description": "Principles and practices of designing user-centered interfaces",
+          "credits": "20"
+        },
+        {
+          "module_name": "Systems Administration and Support",
+          "description": "Management and maintenance of IT systems and infrastructure",
+          "credits": "20"
+        },
+        {
+          "module_name": "Professional and Transferrable Skills",
+          "description": "Development of key professional skills for the IT workplace",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Enterprise Computing (IEC)",
+          "description": "Fundamentals of large-scale enterprise computing systems",
+          "credits": "20"
+        },
+        {
+          "module_name": "Server Side Web Development",
+          "description": "Server-side technologies and frameworks for web applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Artificial Intelligence and Machine Learning",
+          "description": "Fundamentals of AI and ML concepts and applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Systems Security and Cryptography",
+          "description": "Security principles and cryptographic techniques for IT systems",
+          "credits": "20"
+        },
+        {
+          "module_name": "Networks and Protocols",
+          "description": "Computer network architectures and communication protocols",
+          "credits": "20"
+        }
+      ],
+      "year_3": [
+        {
+          "module_name": "Year of Professional Experience",
+          "description": "Full-year paid industry placement with one of 500+ partner companies",
+          "credits": "120"
+        }
+      ],
+      "year_4": [
+        {
+          "module_name": "CIT Project (IT Enterprise Project)",
+          "description": "Major project integrating IT skills in an enterprise context",
+          "credits": "40"
+        },
+        {
+          "module_name": "Data Analysis and Visualisation",
+          "description": "Advanced techniques for analyzing and presenting data",
+          "credits": "20"
+        },
+        {
+          "module_name": "Team-based Software Innovation",
+          "description": "Collaborative development of innovative IT solutions",
+          "credits": "20"
+        },
+        {
+          "module_name": "Software Testing",
+          "description": "Methods and tools for ensuring IT system quality",
+          "credits": "20"
+        },
+        {
+          "module_name": "Network Security",
+          "description": "Advanced security techniques for computer networks",
+          "credits": "20"
+        },
+        {
+          "module_name": "Software Design Principles, Patterns, Practice and Innovation",
+          "description": "Advanced software design methodologies and approaches",
+          "credits": "20"
+        }
+      ]
+    },
+    "radar_chart":"Programming:3;Mathematics:2;Problem Solving:4;Systems Design:4;Data Analysis:3;Project Management:4",
+    "entry_requirements": {
+      "academic_qualification": "A-levels, BTEC, or equivalent qualifications",
+      "grades": "BBB-AAB at A-level, or equivalent",
+      "other_requirements": "GCSE Mathematics grade C/4 or higher",
+      "a_level": "BBB including at least one preferred A-level (see list below) + GCSE Mathematics grade C/4 OR ABB including at least one relevant A-level (see list below) + GCSE Mathematics grade C/4 OR AAB + GCSE Mathematics grade C/4. A maximum of one BTEC/OCR Single Award or AQA Extended Certificate will be accepted as part of an applicant's portfolio of qualifications with a Distinction* being equated to a grade A at A-level and a Distinction being equated to a grade B at A-level.",
+      "irish_leaving_certificate": "H3H3H3H3H4H4/H3H3H3H3H3 including at least one preferred Leaving Certificate subject at grade H3 (see list below) + Ordinary Level grade O4 in Mathematics if not offered at Higher Level OR H3H3H3H3H3H3/H2H3H3H3H3 including at least one relevant Leaving Certificate subject at grade H3 (see list below) + Ordinary Level grade O4 in Mathematics OR H2H3H3H3H3H3 + Ordinary Level grade O4 in Mathematics",
+      "international_requirements": "32 points overall including 6,5,5 at Higher Level to include at least one preferred Higher Level subject OR 33 points overall including 6,5,5 at Higher Level to include at least one relevant Higher Level subject OR 34 points overall including 6,6,5 at Higher Level. If not offered at Higher Level/GCSE then Standard Level grade 4 in English and Mathematics would be accepted.",
+      "preferred_subjects": "Computing, Mathematics or Software Systems Development. Relevant subjects: Biology, Chemistry, Digital Technology, ICT, Physics, Technology and Design or Double Award Applied ICT."
+    }
+  },
+  {
+    "course_name": "Data Science with Year of Professional Experience",
+    "acronym": "DS",
+    "overview": "The aim of the programme is to offer a deep and up-to-date education in data science, machine learning and artificial intelligence that prepares graduates with key knowledge, skills and competencies necessary for employment in data engineering, data analysis, data architect (as well as managerial positions on those topics), or as preparation for further research and innovation careers. In particular the programme aims to provide students with: Comprehensive knowledge and understanding of the fundamental principles of artificial intelligence, data science and machine learning, which will remain applicable through changes in technology. Advanced knowledge and practical skills in the theory and practice of data analytics. The necessary skills, tools and techniques needed to embark on careers as data scientist, or professional developers skilled in data science. Skills in a range of practices, processes, tools and methods applicable to data science in commercial and research contexts. Timely exposure to, and practical experience in, a range of current technologies and emerging trends at the forefront of data science, such as Deep Learning, Natural Language Processing and Trustworthy AI. Opportunities for the development of practical skills in a commercial context.",
+    "short_overview": "Data Science combines mathematics and computer science to prepare you for careers in data engineering, analysis, and architecture. You'll gain skills in AI, machine learning, and data analytics, with practical experience during a professional placement year working on real-world data projects with industry partners.",
+    "course_content": [
+      "This is a joint degree programme between the School of Electrical and Electronic Engineering and Computer Science and the School of Maths and Physics.",
+      "It combines mathematics and computer science for a holistic approach to Data Science and Machine Learning, from theory to practice.",
+      "Students will complete a year of professional experience on data analytics with partner companies.",
+      "The program provides exposure to current technologies and emerging trends like Deep Learning, Natural Language Processing and Trustworthy AI.",
+      "Students develop both theoretical knowledge and practical skills applicable in commercial and research contexts."
+    ],
+    "modules": {
+      "year_1": [
+        {
+          "module_name": "Procedural Programming",
+          "description": "Introduction to procedural programming concepts and techniques",
+          "credits": "20"
+        },
+        {
+          "module_name": "Data Driven Systems",
+          "description": "Fundamentals of data management and database systems",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Probability & Statistics",
+          "description": "Core concepts in probability theory and statistical methods",
+          "credits": "30"
+        },
+        {
+          "module_name": "Introduction to Algebra and Analysis",
+          "description": "Fundamental mathematical concepts in algebra and analysis",
+          "credits": "30"
+        },
+        {
+          "module_name": "Object Oriented Programming",
+          "description": "Principles and practice of object-oriented programming",
+          "credits": "20"
+        }
+      ],
+      "year_2": [
+        {
+          "module_name": "Data Structures and Algorithms",
+          "description": "Advanced data organization methods and algorithm design",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Artificial Intelligence and Machine Learning",
+          "description": "Foundations of AI and machine learning theory and applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Linear Algebra",
+          "description": "Vector spaces, matrices, and linear transformations",
+          "credits": "20"
+        },
+        {
+          "module_name": "Professional and Transferrable Skills",
+          "description": "Development of key professional skills for the workplace",
+          "credits": "20"
+        },
+        {
+          "module_name": "Statistical Inference",
+          "description": "Methods for drawing conclusions from data samples",
+          "credits": "20"
+        },
+        {
+          "module_name": "Theory of Computation",
+          "description": "Theoretical foundations of computer science and algorithms",
+          "credits": "20"
+        }
+      ],
+      "year_3": [
+        {
+          "module_name": "Year of Professional Experience",
+          "description": "Full-year data analytics placement with industry partners",
+          "credits": "120"
+        }
+      ],
+      "year_4": [
+        {
+          "module_name": "Data Science Project",
+          "description": "Capstone project applying data science skills to real-world problems",
+          "credits": "40"
+        },
+        {
+          "module_name": "Advanced Data Analysis",
+          "description": "Advanced techniques for extracting insights from complex datasets",
+          "credits": "20"
+        },
+        {
+          "module_name": "Deep Learning",
+          "description": "Neural network architectures and applications for complex data",
+          "credits": "20"
+        },
+        {
+          "module_name": "Malware Analysis",
+          "description": "Techniques for analyzing and defending against malicious software",
+          "credits": "20"
+        },
+        {
+          "module_name": "Cloud Computing",
+          "description": "Distributed computing systems and cloud-based data processing",
+          "credits": "20"
+        },
+        {
+          "module_name": "Concurrent Programming",
+          "description": "Development of multi-threaded applications for parallel data processing",
+          "credits": "20"
+        }
+      ]
+    },
+    "radar_chart":"Programming:4;Mathematics:5;Problem Solving:4;Systems Design:3;Data Analysis:5;Project Management:3",
+    "entry_requirements": {
+      "academic_qualification": "A-levels, BTEC, or equivalent qualifications",
+      "grades": "AAB/A*BB at A-level, or equivalent",
+      "other_requirements": "GCSE Mathematics grade C/4 or higher",
+      "a_level": "AAB/A*BB including Mathematics grade A. A maximum of one BTEC/OCR Single Award or AQA Extended Certificate will be accepted as part of an applicant's portfolio of qualifications with a Distinction* being equated to a grade A at A-level and a Distinction being equated to a grade B at A-level.",
+      "irish_leaving_certificate": "H2H3H3H3H3H3 including Higher Level grade H2 in Mathematics. If not offered at Higher Level then Ordinary Level grade O4 in English.",
+      "international_requirements": "34 points overall including 6,6,5 at Higher Level with Higher Level grade 6 in Mathematics. Standard Level grade 4 in English Language would be accepted.",
+      "preferred_subjects": "Mathematics, Further Mathematics, Computer Science, Statistics or Physics."
+    }
+  },
+  {
+    "course_name": "Computer Engineering",
+    "acronym": "CE",
+    "overview": "Computer Engineering is a dynamic and collaborative degree programme; combining academic thought with practical application. Computer Engineers make the impossible possible. They challenge conventional processes and look beyond what exists towards what comes next. From everyday systems, like games consoles and mobile phones to advanced systems for surveillance and medical devices, the modern world is made possible by the devices you will be taught to understand and develop during the Computer Engineering undergraduate programme. Additionally, Computer Engineering is one of the few research-led degrees in Queen's which includes the design of both electronic hardware and software. As a Computer Engineering graduate you can not only design the physical hardware but also write the software to run it. Through our diverse network of industry links you begin learning from prospective employers from day one. Industry placements, company-sponsored hackathons and project challenges are a core part of the curriculum and vastly improve our graduate employability rates.",
+    "short_overview": "Computer Engineering combines hardware and software design, preparing you to create the technologies that power our modern world. From game consoles and mobile phones to surveillance systems and medical devices, you'll learn to develop innovative solutions while building valuable industry connections through placements and projects.",
+    "course_content": [
+      "This degree requires three years of full-time study with an optional year in industry.",
+      "The program combines both electronic hardware design and software development.",
+      "Students work on projects with direct industry involvement through placements, hackathons, and challenges.",
+      "The curriculum covers embedded systems, digital electronics, programming, signals and communications.",
+      "Graduates are highly sought-after for roles in software, electronics, or combined positions across various industries."
+    ],
+    "modules": {
+      "year_1": [
+        {
+          "module_name": "Embedded Systems",
+          "description": "Introduction to embedded system design and programming",
+          "credits": "20"
+        },
+        {
+          "module_name": "Signals and Communications",
+          "description": "Fundamentals of signal processing and communication systems",
+          "credits": "20"
+        },
+        {
+          "module_name": "Object Oriented Programming",
+          "description": "Principles and practice of object-oriented programming",
+          "credits": "20"
+        },
+        {
+          "module_name": "Mathematics 1",
+          "description": "Mathematical concepts essential for computer engineering",
+          "credits": "20"
+        },
+        {
+          "module_name": "Digital Systems",
+          "description": "Fundamentals of digital logic and system design",
+          "credits": "20"
+        },
+        {
+          "module_name": "Fundamentals of Electric Circuits",
+          "description": "Basic principles of electric circuit analysis and design",
+          "credits": "20"
+        }
+      ],
+      "year_2": [
+        {
+          "module_name": "Mathematics",
+          "description": "Advanced mathematical methods for computer engineering",
+          "credits": "20"
+        },
+        {
+          "module_name": "Data Structures and Algorithms",
+          "description": "Design and analysis of efficient data structures and algorithms",
+          "credits": "20"
+        },
+        {
+          "module_name": "Employability Skills and Placement Preparation",
+          "description": "Professional skills development for industry placement",
+          "credits": "0"
+        },
+        {
+          "module_name": "Embedded Systems 2",
+          "description": "Advanced embedded system design and implementation",
+          "credits": "20"
+        },
+        {
+          "module_name": "Systems Security and Cryptography",
+          "description": "Security principles and cryptographic techniques for computer systems",
+          "credits": "20"
+        },
+        {
+          "module_name": "Introduction to Artificial Intelligence and Machine Learning",
+          "description": "Foundations of AI and ML for engineering applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Digital Systems",
+          "description": "Advanced digital system design and implementation",
+          "credits": "20"
+        },
+        {
+          "module_name": "Signals and Control",
+          "description": "Signal processing and control system fundamentals",
+          "credits": "20"
+        },
+        {
+          "module_name": "Electronics and Circuits",
+          "description": "Advanced electronic circuit design and analysis",
+          "credits": "20"
+        },
+        {
+          "module_name": "Communications",
+          "description": "Modern communication systems and protocols",
+          "credits": "20"
+        }
+      ],
+      "year_3": [
+        {
+          "module_name": "Project 3",
+          "description": "Capstone engineering project integrating hardware and software design",
+          "credits": "40"
+        },
+        {
+          "module_name": "Engineering Entrepreneurship",
+          "description": "Business aspects of engineering innovation and product development",
+          "credits": "20"
+        },
+        {
+          "module_name": "Control Systems Engineering",
+          "description": "Design and analysis of control systems for engineering applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Malware Analysis",
+          "description": "Techniques for analyzing and defending against malicious software",
+          "credits": "20"
+        },
+        {
+          "module_name": "Deep Learning",
+          "description": "Neural network architectures and applications in engineering",
+          "credits": "20"
+        },
+        {
+          "module_name": "Video Analytics and Machine Learning",
+          "description": "Processing and analysis of video data using machine learning",
+          "credits": "20"
+        },
+        {
+          "module_name": "Concurrent Programming",
+          "description": "Design and implementation of multi-threaded applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Networks and Communications Protocols",
+          "description": "Advanced network architectures and communication protocols",
+          "credits": "20"
+        },
+        {
+          "module_name": "Signal Processing and Communications",
+          "description": "Advanced signal processing techniques for communication systems",
+          "credits": "20"
+        },
+        {
+          "module_name": "Connected Health",
+          "description": "Technologies and systems for healthcare applications",
+          "credits": "20"
+        },
+        {
+          "module_name": "Advanced Electronics",
+          "description": "Cutting-edge electronic system design and implementation",
+          "credits": "20"
+        }
+      ]
+    },
+    "radar_chart":"Programming:4;Mathematics:5;Problem Solving:4;Systems Design:5;Data Analysis:3;Project Management:3",
+    "entry_requirements": {
+      "academic_qualification": "A-levels, BTEC, or equivalent qualifications",
+      "grades": "ABB at A-level, or equivalent",
+      "other_requirements": "GCSE Mathematics grade C/4 or higher",
+      "a_level": "ABB including Mathematics and at least one from Computer Science, Computing, Digital Technology, Electronics, Further Mathematics, Geography, ICT, Physics, Technology and Design or Double Award Applied ICT. GCSE Mathematics grade C/4 required if not offered at A-level.",
+      "irish_leaving_certificate": "H3H3H3H3H3H3/H2H3H3H3H3 including Higher Level grade H3 in Mathematics and a Science subject. If not offered at Higher Level then Ordinary Level grade O4 in Mathematics.",
+      "international_requirements": "33 points overall including 6,5,5 at Higher Level with Higher Level grade 6 in Mathematics and grade 5 in a Science subject. Standard Level grade 4 in English Language would be accepted.",
+      "preferred_subjects": "Mathematics, Physics, Electronics, Computer Science, Computing, or Technology and Design."
+    }
+  }
+]
