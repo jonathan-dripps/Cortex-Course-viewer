@@ -1539,20 +1539,20 @@ Removed superhands controller support and replaced with handy-controls which sup
     </a-entity>
     
     <!-- Ground collider to prevent objects from falling endlessly -->
-    <a-plane physx-body= "type: static" height="10" width="10" rotation="-90 0 0" color= "red" visible="true"></a-plane>
+<a-box physx-body= "type: static" height="0.1" width="10" depth="10" rotation="-0 0 0" visible="false"></a-box>
     
-    <!-- Invisible boundary walls to keep objects within reach -->
-    <!-- Front boundary (between user and panels) - wider and higher  -->
-<a-box physx-body="type: static" position="0 1.5 -2.8" width="10" height="4" depth="0.1" visible="false"></a-box>
+    <!-- Invisible boundary walls to keep objects within reach 
+		 Front boundary (between user and panels) - wider and higher -->
+<a-box physx-body="type: static" position="0 1.5 -2.5" width="10" height="4" depth="0.1" visible="false"></a-box>
 
 <!-- Back boundary (behind the user) - wider and higher  -->
-<a-box physx-body="type:static" position="0 1.5 3" width="10" height="4" depth="0.1" visible="false"></a-box>
+<a-box physx-body="type:static" position="0 1.5 2.5" width="10" height="4" depth="0.1" visible="false"></a-box>
 
 <!-- Left boundary - taller and deeper  -->
-<a-box physx-body="type: static" position="-5 1.5 0" width="0.1" height="4" depth="10" visible="false"></a-box>
+<a-box physx-body="type: static" position="-2.5 1.5 0" width="0.1" height="4" depth="10" visible="false"></a-box>
 
 <!-- Right boundary - taller and deeper  -->
-<a-box physx-body="type: static" position="5 1.5 0" width="0.1" height="4" depth="10" visible="false"></a-box>
+<a-box physx-body="type: static" position="2.5 1.5 0" width="0.1" height="4" depth="10" visible="false"></a-box>
 
 <!-- Ceiling to prevent objects from going too high - wider and longer  -->
 <a-box physx-body="type: static" position="0 2 0" width="10" height="0.1" depth="10" visible="false"></a-box>
@@ -1701,7 +1701,7 @@ Removed superhands controller support and replaced with handy-controls which sup
     </a-tetrahedron>
       
     <!-- Business IT (Sphere) -->
-    <a-sphere position="-0.07 3 -0.29" color="#ffd166" radius="0.1"
+    <a-sphere position="-0.07 0.3 -0.29" color="#ffd166" radius="0.1"
               mixin="course-object-interactive" class="interactive"
               course-object="course: BIT">
 		<a-entity id="BIT handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
