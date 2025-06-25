@@ -1455,13 +1455,15 @@ function formatTopSkills(radarData, count) {
   AFRAME.registerComponent('toggle-physx-body', {
     init: function () {
       var el = this.el;
+	  var sceneEl = document.querySelector('a-scene');
+	// changed fist to shaka to try to pickup an object in one movement  
       el.addEventListener('pose_fist', function(){
 	  console.log("physics set to static")
-	  document.getElementById("myID7").setAttribute('physx-body', 'type', 'static');
+	  sceneEl.querySelector("#myID7").removeAttribute('physx-body');
       });
 
     el.addEventListener('pose_flat', function(){
-	  setTimeout(document.getElementById("myID7").setAttribute('physx-body', 'type', 'dynamic'), 100);
+	  sceneEl.querySelector("#myID7").setAttribute('physx-body', 'type', 'dynamic');
       console.log("physics set to dynamic")
       });
     }
@@ -1591,8 +1593,8 @@ Removed superhands controller support and replaced with handy-controls which sup
        
 	   <!--Chsnged pedestal for new phsyx-->
         <a-entity class="pedestal" position="0 -1.0 0.5">
-          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body-from-model="type:static;mass:2;"></a-cylinder>
-          <a-cylinder class="pedestal-top" id="pedestal-overview" data-panel-id="overview-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
+          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body="type:static;mass:2;"></a-cylinder>
+          <a-cylinder class="pedestal-top" id="pedestal-overview" data-panel-id="overview-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" physx-body="type: static"></a-cylinder>
         </a-entity>
         
        <!-- Navigation buttons positioned at the base of the pedestal -->
@@ -1658,12 +1660,12 @@ Removed superhands controller support and replaced with handy-controls which sup
                 position="0 0.35 0.05" width="1.5" align="center" color="white" side="double"></a-text>
         
         <a-entity class="pedestal" position="-0.4 -1.0 0.5">
-          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body-from-model="type:static;mass:2;"></a-cylinder>
+          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body="type:static;mass:2;"></a-cylinder>
           <a-cylinder class="pedestal-top" id="pedestal-compare-1" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
         </a-entity>
         
         <a-entity class="pedestal" position="0.4 -1.0 0.5">
-          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body-from-model="type:static;mass:2;"></a-cylinder>
+          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body="type:static;mass:2;"></a-cylinder>
           <a-cylinder class="pedestal-top" id="pedestal-compare-2" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
         </a-entity>
         
@@ -1692,8 +1694,9 @@ Removed superhands controller support and replaced with handy-controls which sup
     <!-- Course Objects - Arranged around user -  Added handles to each object to be grabbed by hands-->
 
     <!-- Computer Science (Cube) -->
-    <a-box	position="-0.28 0.4 -0.10" 
-			color="#4ecdc4" scale="0.2 0.2 0.2"
+    <a-box	position="-0.28 0.4 1.20" 
+			color="#4ecdc4" height="0.2" width= "0.2" depth="0.2"
+			physx-body= "type: dynamic"
             mixin="course-object-interactive" class="interactive"
             course-object="course: CS">
 		<a-entity position="0 1.5 0" face-user text="value: CS; align: center; color: white; width: 30"></a-entity>
@@ -1703,9 +1706,7 @@ Removed superhands controller support and replaced with handy-controls which sup
               data-pick-up="parent"
               position="0 0.15 -0.1"
               rotation="0 90 0">
-		</a-entity>
-		<a-entity geometry="primitive: sphere; radius: 0.18" 
-                material="color: #ff9a8b; opacity: 0.0; transparent: true"></a-entity>
+		</a-entity>		
     </a-box>
 	
 	
@@ -1715,8 +1716,6 @@ Removed superhands controller support and replaced with handy-controls which sup
                     course-object="course: SE" toggle-physx-body> 
 		<a-entity id="extra handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
 		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
-        <a-entity geometry="primitive: sphere; radius: 0.2" 
-                material="color: #ff6b6b; opacity: 0.0; transparent: true"></a-entity>
     </a-tetrahedron>
 
 	
@@ -1728,8 +1727,6 @@ Removed superhands controller support and replaced with handy-controls which sup
 		<a-cylinder id="visible-handle" position="0 0.7 0"   scale="0.2 1 0.2"></a-cylinder>
 		<a-entity id="cyl handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 2 0" rotation="0 0 0"></a-entity>
 		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
-        <a-entity geometry="primitive: sphere; radius: 0.2" 
-                material="color: #ff6b6b; opacity: 0.0; transparent: true"></a-entity>
     </a-cylinder>
 	
 	<script>
@@ -1757,9 +1754,7 @@ Removed superhands controller support and replaced with handy-controls which sup
               course-object="course: BIT">
 		<a-entity id="BIT handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
 		<a-entity position="0 0.3 0" face-user text="value: BIT; align: center; color: white; width: 5"></a-entity>
-		<a-entity geometry="primitive: sphere; radius: 0.15" 
-                material="color: #ffd166; opacity: 0.0; transparent: true"></a-entity>
-    </a-sphere>
+		</a-sphere>
     
     <!-- Computing & IT (Cylinder) -->
     <a-cylinder position="0.07 0.3 -0.29" color="#06d6a0" height="0.2" radius="0.1"
@@ -1767,8 +1762,6 @@ Removed superhands controller support and replaced with handy-controls which sup
                 course-object="course: CIT">
 		<a-entity id="CIT handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
       <a-entity position="0 0.3 0" face-user text="value: CIT; align: center; color: white; width: 5"></a-entity>
-      <a-entity geometry="primitive: cylinder; height: 0.25; radius: 0.15" 
-                material="color: #06d6a0; opacity: 0.0; transparent: true"></a-entity>
     </a-cylinder>
       
     <!-- Data Science (Octahedron) -->
@@ -1777,8 +1770,6 @@ Removed superhands controller support and replaced with handy-controls which sup
                   course-object="course: DS">
 		<a-entity id="DS handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
       <a-entity position="0 0.3 0" face-user text="value: DS; align: center; color: white; width: 5"></a-entity>
-      <a-entity geometry="primitive: sphere; radius: 0.18" 
-                material="color: #ff9a8b; opacity: 0.0; transparent: true"></a-entity>
     </a-octahedron>
       
     <!-- Computer Engineering (Torus) -->
@@ -1787,8 +1778,6 @@ Removed superhands controller support and replaced with handy-controls which sup
               course-object="course: CE">
 		<a-entity id="CE handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
       <a-entity position="0 0.3 0" face-user text="value: CE; align: center; color: white; width: 5"></a-entity>
-      <a-entity geometry="primitive: sphere; radius: 0.15" 
-                material="color: #9896f1; opacity: 0.0; transparent: true"></a-entity>
     </a-torus>
   </a-scene>
 
