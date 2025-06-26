@@ -1290,7 +1290,7 @@ function formatTopSkills(radarData, count) {
       return text.substring(0, maxLength) + "...";
     }
     
-    // Course object component - combined from working example
+    // Course object component | **Needs Reworking to work with hand interaction**
     AFRAME.registerComponent('course-object', {
       schema: { 
         course: { type: 'string' }
@@ -1301,19 +1301,21 @@ function formatTopSkills(radarData, count) {
         el.setAttribute("data-course", courseId);
         this.initialPosition = el.getAttribute("position");
         this.initialRotation = el.getAttribute("rotation") || { x: 0, y: 0, z: 0 };
-
-        el.addEventListener("grab-start", this.onGrabStart.bind(this));
-        el.addEventListener("grab-end", this.onGrabEnd.bind(this));
+	
+	// event listeners to detect when course objects collide with pedestals 
+	// detects when collisions start i.e. when it is released from the hand
+        el.addEventListener('contactbegin', ()=> {
+		console.log("Released course object" + courseId)
+		this.tryPlaceOnPedestal();
+	  });
+	// detects when collisions end i.e. when object is grabbed by hand
+		el.addEventListener('contactend', ()=>{
+		console.log("Grabbed course object" + courseId)
+		this.removeFromPedestal();
+      });
         console.log("Initialized course object: " + courseId);
       },
-      onGrabStart: function(evt) {
-        console.log("Grabbed course object: " + this.data.course);
-        this.removeFromPedestal();
-      },
-      onGrabEnd: function(evt) {
-        console.log("Released course object: " + this.data.course);
-        this.tryPlaceOnPedestal();
-      },
+     
       removeFromPedestal: function() {
         const pedestals = document.querySelectorAll(".pedestal-top");
         const courseId = this.data.course;
@@ -1451,12 +1453,12 @@ function formatTopSkills(radarData, count) {
 </script>
 
 <script>
-  // Toggle physx body on hand pose
+  // Toggle physx body on hand pose - needs updated for all objects
   AFRAME.registerComponent('toggle-physx-body', {
     init: function () {
       var el = this.el;
 	  var sceneEl = document.querySelector('a-scene');
-	// changed fist to shaka to try to pickup an object in one movement  
+
       el.addEventListener('pose_fist', function(){
 	  console.log("physics set to static")
 	  sceneEl.querySelector("#myID7").removeAttribute('physx-body');
@@ -1465,6 +1467,26 @@ function formatTopSkills(radarData, count) {
     el.addEventListener('pose_flat', function(){
 	  sceneEl.querySelector("#myID7").setAttribute('physx-body', 'type', 'dynamic');
       console.log("physics set to dynamic")
+      });
+    }
+	});
+
+</script>
+
+<script>
+  // change colour of pedestal top on collision
+  AFRAME.registerComponent('emit-collision-test', {
+    init: function () {
+      var el = this.el;
+	
+      el.addEventListener('contactbegin', function(){
+	  console.log("contact start")
+	  setTimeout(el.setAttribute('material', 'color', 'blue'), 0);
+	  });
+
+    el.addEventListener('contactend', function(){
+	  setTimeout(el.setAttribute('material', 'color', 'red'), 0);
+	  console.log("contact end")
       });
     }
 	});
@@ -1488,7 +1510,8 @@ Removed superhands controller support and replaced with handy-controls which sup
       <!-- Mixins for interactive objects -- changed to support new physx over old physics library -->
       <a-mixin id="course-object-interactive" 
                shadow="receive:true;"
-			   physx-body="type:dynamic;mass:2;"
+			   physx-body="type:dynamic; mass:2; emitCollisionEvents: true"
+			   physx-collider
                ></a-mixin>
       
       <!-- Button mixin-- added new animation to turn button green for a short period of time when pressed -->
@@ -1593,8 +1616,10 @@ Removed superhands controller support and replaced with handy-controls which sup
        
 	   <!--Chsnged pedestal for new phsyx-->
         <a-entity class="pedestal" position="0 -1.0 0.5">
-          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body="type:static;mass:2;"></a-cylinder>
-          <a-cylinder class="pedestal-top" id="pedestal-overview" data-panel-id="overview-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" physx-body="type: static"></a-cylinder>
+          <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body="type:static"></a-cylinder>
+          <a-cylinder class="pedestal-top" id="pedestal-overview" data-panel-id="overview-content" 
+		  position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" physx-body="type: static; emitCollisionEvents: true"
+		  emit-collision-test physx-collider></a-cylinder>
         </a-entity>
         
        <!-- Navigation buttons positioned at the base of the pedestal -->
@@ -1661,12 +1686,12 @@ Removed superhands controller support and replaced with handy-controls which sup
         
         <a-entity class="pedestal" position="-0.4 -1.0 0.5">
           <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body="type:static;mass:2;"></a-cylinder>
-          <a-cylinder class="pedestal-top" id="pedestal-compare-1" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
+          <a-cylinder class="pedestal-top" id="pedestal-compare-1" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" ></a-cylinder>
         </a-entity>
         
         <a-entity class="pedestal" position="0.4 -1.0 0.5">
           <a-cylinder color="#c0c0c0" height="0.6" radius="0.15" position="0 -0.3 0" physx-body="type:static;mass:2;"></a-cylinder>
-          <a-cylinder class="pedestal-top" id="pedestal-compare-2" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" static-body="shape: cylinder"></a-cylinder>
+          <a-cylinder class="pedestal-top" id="pedestal-compare-2" data-panel-id="compare-content" position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" ></a-cylinder>
         </a-entity>
         
         
@@ -1711,23 +1736,12 @@ Removed superhands controller support and replaced with handy-controls which sup
 	
 	
 	 <!-- temp -->
-	<a-tetrahedron id="myID7" physx-body= "type: static" position="-0.5 1.8 0" color="blue" radius="0.15"
+	<a-tetrahedron id="myID7" physx-body= "type: static" position="0 0 0" color="blue" radius="0.15"
                     mixin="course-object-interactive" class="interactive"
                     course-object="course: SE" toggle-physx-body> 
 		<a-entity id="extra handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
 		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
     </a-tetrahedron>
-
-	
-	
-	 <!-- temp2 | seperate handle test -->
-	<a-cylinder id="myID1" physx-body= "type: dynamic" position="0.5 1.8 0" color="blue" scale="0.1 0.2 0.1 "
-                    mixin="course-object-interactive" class="interactive"
-                    course-object="course: SE" > 
-		<a-cylinder id="visible-handle" position="0 0.7 0"   scale="0.2 1 0.2"></a-cylinder>
-		<a-entity id="cyl handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 2 0" rotation="0 0 0"></a-entity>
-		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
-    </a-cylinder>
 	
 	<script>
 		//console.log(document.getElementById("myID7").position)
@@ -1739,7 +1753,7 @@ Removed superhands controller support and replaced with handy-controls which sup
 	
 	
     <!-- Software Engineering (Pyramid) -->
-    <a-tetrahedron physx-body= "type: dynamic" position="-0.5 0.4 0" color="#ff6b6b" radius="0.15"
+    <a-tetrahedron  position="-0.5 0.4 0" color="#ff6b6b" radius="0.15"
                     mixin="course-object-interactive" class="interactive"
                     course-object="course: SE"> 
 		<a-entity id="SE handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
@@ -1757,7 +1771,7 @@ Removed superhands controller support and replaced with handy-controls which sup
 		</a-sphere>
     
     <!-- Computing & IT (Cylinder) -->
-    <a-cylinder position="0.07 0.3 -0.29" color="#06d6a0" height="0.2" radius="0.1"
+    <a-cylinder position="0 1.8 -1" color="#06d6a0" height="0.2" radius="0.1"
                 mixin="course-object-interactive" class="interactive"
                 course-object="course: CIT">
 		<a-entity id="CIT handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
