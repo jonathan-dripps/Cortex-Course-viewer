@@ -669,8 +669,12 @@
       targetPanel: this.data.targetPanel,
       contentType: year
     });
+	
+	//make the sub buttons emit collision events 
+	subButton.setAttribute('physx-body', 'emitCollisionEvents', true)
+    subButton.setAttribute('physx-body', 'type', 'static')
     
-    // Add to scene and track for removal
+	// Add to scene and track for removal
     el.parentNode.appendChild(subButton);
     this.submenuEntities.push(subButton);
   });
@@ -1458,7 +1462,7 @@ Removed superhands controller support and replaced with handy-controls which sup
 			   physx-collider
                ></a-mixin>
       
-      <!-- Button mixin-- added new animation to turn button green for a short period of time when pressed -->
+      <!-- Button mixin-- detect collisions with hands -->
       <a-mixin id="nav-button"
                geometry="primitive: box; width: 0.15; height: 0.08; depth: 0.02"
                physx-body="type: static; emitCollisionEvents: true"
@@ -1601,14 +1605,14 @@ Removed superhands controller support and replaced with handy-controls which sup
                 position="0 0.35 0.05" width="1.5" align="center" color="white" side="double"></a-text>
         
         <!-- Environment change button in front of main panel -->
-        <a-entity position="0.4 -0.7 0.5" rotation="0 0 0"
+        <a-entity mixin= "nav-button" position="0.4 -0.7 0.5" rotation="0 0 0"
         geometry="primitive: box; width: 0.2; height: 0.2; depth: 0.05"
         interactive-button="label: Change\nEnvironment; color: #06d6a0; action: change-environment"
         shadow></a-entity>
 
         
         <!-- Reset button in front of main panel -->
-        <a-entity position="-0.4 -0.7 0.5" rotation="0 0 0"
+        <a-entity mixin ="nav-button" position="-0.4 -0.7 0.5" rotation="0 0 0"
                  geometry="primitive: box; width: 0.2; height: 0.2; depth: 0.05"
                  interactive-button="label: Reset\nObjects; color: #ff9a8b; hoverColor: #ff6b6b; pressColor: #ff4757; action: reset-scene"
          shadow></a-entity>
