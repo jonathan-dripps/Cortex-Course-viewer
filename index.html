@@ -295,14 +295,23 @@
       const originalScale = obj.getAttribute('scale') || {x: 1, y: 1, z: 1};
       
       if (originalPositions[courseId]) {
-        
+        // Temporarily disable physics
+        const hadDynamicBody = obj.hasAttribute('dynamic-body');
+        if (hadDynamicBody) {
+          obj.removeAttribute('dynamic-body');
+        }
         
         // Set to hardcoded original position
         obj.setAttribute('position', originalPositions[courseId]);
         obj.setAttribute('rotation', originalRotation);
         obj.setAttribute('scale', originalScale);
         
-        
+        // Re-enable physics after a delay
+        setTimeout(() => {
+          if (hadDynamicBody) {
+            obj.setAttribute('dynamic-body', '');
+          }
+        }, 100);
       }
     }
     
@@ -1387,26 +1396,6 @@ function formatTopSkills(radarData, count) {
 	  els[i].setAttribute('physx-body', 'type', 'dynamic');
 	  console.log(els[i]);
 		}
-      });
-    }
-	});
-
-</script>
-
-<script>
-  // change colour of pedestal top on collision
-  AFRAME.registerComponent('emit-collision-test', {
-    init: function () {
-      var el = this.el;
-	
-      el.addEventListener('contactbegin', function(){
-	  console.log("contact start")
-	  setTimeout(el.setAttribute('material', 'color', 'blue'), 0);
-	  });
-
-    el.addEventListener('contactend', function(){
-	  setTimeout(el.setAttribute('material', 'color', 'red'), 0);
-	  console.log("contact end")
       });
     }
 	});
