@@ -1354,48 +1354,15 @@ function formatTopSkills(radarData, count) {
   </script>
   <!-- Event listener to detect flat pose of hands-->
 
-<script>
-  // Change right hand color on pose
-  AFRAME.registerComponent('right-pose-indicator', {
-    init: function () {
-      var el = this.el;
-      el.addEventListener('pose_point', function(){
-	  console.log("Right hand point")
-      });
-
-    el.addEventListener('pose_relax', function(){
-      console.log("Right hand relax")
-      });
-    }
-	});
-
-</script>
-<script>
-  // Change left hand color on pose
-  AFRAME.registerComponent('left-pose-indicator', {
-    init: function () {
-      var el = this.el;
-      el.addEventListener('pose_point', function(){
-	  console.log("Left hand point")
-      });
-
-    el.addEventListener('pose_vulcan', function(){
-      console.log("Left hand relax")
-      });
-    }
-	});
-
-</script>
 
 <script>
-  // Toggle physx body on hand pose - needs updated for all objects
-  AFRAME.registerComponent('toggle-physx-body', {
+  // Toggle physx body on right hand pose - updated for all objects
+  AFRAME.registerComponent('right-toggle-physx-body', {
     init: function () {
       var el = this.el;
 	  var sceneEl = document.querySelector('a-scene');
 
       el.addEventListener('pose_fist', function(){
-	  console.log("physics set to static")
 	  els = sceneEl.querySelectorAll('.interactive');
 	  
 	  for (var i = 0; i < els.length; i++) {
@@ -1405,6 +1372,35 @@ function formatTopSkills(radarData, count) {
       });
 
     el.addEventListener('pose_flat', function(){
+	  els = sceneEl.querySelectorAll('.interactive');
+	  
+	  for (var i = 0; i < els.length; i++) {
+	  els[i].setAttribute('physx-body', 'type', 'dynamic');
+	  console.log(els[i]);
+		}
+      });
+    }
+	});
+
+</script>
+
+<script>
+  // Toggle physx body on left hand pose 
+  AFRAME.registerComponent('left-toggle-physx-body', {
+    init: function () {
+      var el = this.el;
+	  var sceneEl = document.querySelector('a-scene');
+
+      el.addEventListener('pose_fist', function(){
+	  els = sceneEl.querySelectorAll('.interactive');
+	  
+	  for (var i = 0; i < els.length; i++) {
+	  els[i].removeAttribute('physx-body');
+	  console.log(els[i]);
+		}
+      });
+// uses relax instead of flat as poses arre inconsistent between hands https://github.com/AdaRoseCannon/handy-work/issues/16
+    el.addEventListener('pose_relax', function(){
 	  els = sceneEl.querySelectorAll('.interactive');
 	  
 	  for (var i = 0; i < els.length; i++) {
@@ -1503,8 +1499,8 @@ Removed superhands controller support and replaced with handy-controls which sup
         
         <!-- These get drawn towards grabable objects, moving the whole hand and the attached elements-->
 		<!-- The poses on stopEvents are different as the poses are inconsistent between hands https://github.com/AdaRoseCannon/handy-work/issues/16 -->
-        <a-entity id="right-magnet" data-right="grip" data-magnet="magnet-right" grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#right-no-magnet;" right-pose-indicator toggle-physx-body></a-entity>
-		<a-entity id="left-magnet" data-left="grip"  data-magnet="magnet-left"  grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_relax_fuseShort,squeezeend;noMagnetEl:#left-no-magnet;" left-pose-indicator></a-entity>
+        <a-entity id="right-magnet" data-right="grip" data-magnet="magnet-right" grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#right-no-magnet;" right-toggle-physx-body></a-entity>
+		<a-entity id="left-magnet" data-left="grip"  data-magnet="magnet-left"  grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_relax_fuseShort,squeezeend;noMagnetEl:#left-no-magnet;" left-toggle-physx-body></a-entity>
         <!-- markers to let us know the real location of the hands, you probably want to make them visible="false" or just make them empty <a-entities> -->
         <a-entity id="left-no-magnet" data-left="grip" data-no-magnet></a-entity>
         <a-entity id="right-no-magnet" data-right="grip" data-no-magnet></a-entity>
