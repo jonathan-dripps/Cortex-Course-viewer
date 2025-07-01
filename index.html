@@ -269,9 +269,9 @@
       console.log(`Using stored position for ${courseId}:`, originalState.position);
       
       // Temporarily disable physics to allow forced positioning
-      const hadDynamicBody = obj.hasAttribute('dynamic-body');
+      const hadDynamicBody = obj.hasAttribute('physx-body','dynamic');
       if (hadDynamicBody) {
-        obj.removeAttribute('dynamic-body');
+        obj.removeAttribute('physx-body');
       }
       
       // Set to original position, rotation, and scale
@@ -282,7 +282,7 @@
       // Re-enable physics after a delay
       setTimeout(() => {
         if (hadDynamicBody) {
-          obj.setAttribute('dynamic-body', '');
+          obj.setAttribute('physx-body','dynamic');
         }
       }, 100);
       
@@ -347,19 +347,6 @@
         const camera = document.querySelector('[camera]');
         if (!camera) return;
         this.el.object3D.lookAt(camera.object3D.position);
-      }
-    });
-    
-    // Toggle physics collision for controllers when grip is pressed
-    AFRAME.registerComponent('phase-shift', {
-      init: function () {
-        var el = this.el;
-        el.addEventListener('gripdown', function () {
-          el.setAttribute('collision-filter', {collisionForces: true});
-        });
-        el.addEventListener('gripup', function () {
-          el.setAttribute('collision-filter', {collisionForces: false});
-        });
       }
     });
     
@@ -1409,12 +1396,21 @@ function formatTopSkills(radarData, count) {
 
       el.addEventListener('pose_fist', function(){
 	  console.log("physics set to static")
-	  sceneEl.querySelector("#myID7").removeAttribute('physx-body');
+	  els = sceneEl.querySelectorAll('.interactive');
+	  
+	  for (var i = 0; i < els.length; i++) {
+	  els[i].removeAttribute('physx-body');
+	  console.log(els[i]);
+		}
       });
 
     el.addEventListener('pose_flat', function(){
-	  sceneEl.querySelector("#myID7").setAttribute('physx-body', 'type', 'dynamic');
-      console.log("physics set to dynamic")
+	  els = sceneEl.querySelectorAll('.interactive');
+	  
+	  for (var i = 0; i < els.length; i++) {
+	  els[i].setAttribute('physx-body', 'type', 'dynamic');
+	  console.log(els[i]);
+		}
       });
     }
 	});
@@ -1459,7 +1455,7 @@ Removed superhands controller support and replaced with handy-controls which sup
       <a-mixin id="course-object-interactive" 
                shadow="receive:true;"
 			   physx-body="type:dynamic; mass:2; emitCollisionEvents: true"
-			   physx-collider
+			   physx-collider toggle-physx-body
                ></a-mixin>
       
       <!-- Button mixin-- detect collisions with hands -->
@@ -1668,7 +1664,7 @@ Removed superhands controller support and replaced with handy-controls which sup
 
     <!-- Computer Science (Cube) -->
     <a-box	position="-0.28 0.4 1.20" 
-			color="#4ecdc4" height="0.2" width= "0.2" depth="0.2"
+			color="purple" height="0.2" width= "0.2" depth="0.2"
 			physx-body= "type: dynamic"
             mixin="course-object-interactive" class="interactive"
             course-object="course: CS">
@@ -1686,7 +1682,7 @@ Removed superhands controller support and replaced with handy-controls which sup
 	 <!-- temp -->
 	<a-tetrahedron id="myID7" physx-body= "type: static" position="0 0.4 0" color="blue" radius="0.15"
                     mixin="course-object-interactive" class="interactive"
-                    course-object="course: SE" toggle-physx-body> 
+                    course-object="course: SE" > 
 		<a-entity id="extra handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
 		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
     </a-tetrahedron>
