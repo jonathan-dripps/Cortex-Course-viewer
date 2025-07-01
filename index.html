@@ -19,14 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/handy-controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/magnet-helpers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-htmlmesh@2.4.0/build/aframe-html.min.js"></script>
-  <script src="simple-navmesh-constraint.js"></script>
   
-  <script src="model-utils.js"></script>
-  
-  <!-- Our custom behaviour -->
-  <script src="main.js"></script>
-  
-  <link rel="stylesheet" href="style.css">
   
   <!-- Setup global objects and components -->
   <script>
@@ -302,29 +295,17 @@
       const originalScale = obj.getAttribute('scale') || {x: 1, y: 1, z: 1};
       
       if (originalPositions[courseId]) {
-        // Temporarily disable physics
-        const hadDynamicBody = obj.hasAttribute('dynamic-body');
-        if (hadDynamicBody) {
-          obj.removeAttribute('dynamic-body');
-        }
+        
         
         // Set to hardcoded original position
         obj.setAttribute('position', originalPositions[courseId]);
         obj.setAttribute('rotation', originalRotation);
         obj.setAttribute('scale', originalScale);
         
-        // Re-enable physics after a delay
-        setTimeout(() => {
-          if (hadDynamicBody) {
-            obj.setAttribute('dynamic-body', '');
-          }
-        }, 100);
+        
       }
     }
     
-    // Remove any ongoing animations
-    obj.removeAttribute('animation__pulse');
-    obj.removeAttribute('animation');
   });
   
   console.log("Object reset complete");
@@ -656,7 +637,7 @@
       contentType: year
     });
 	
-	//make the sub buttons emit collision events 
+	//make the sub buttons emit collision events i.e. can be pressed
 	subButton.setAttribute('physx-body', 'emitCollisionEvents', true)
     subButton.setAttribute('physx-body', 'type', 'static')
     
