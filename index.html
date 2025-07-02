@@ -260,23 +260,14 @@
     if (originalState) {
       console.log(`Using stored position for ${courseId}:`, originalState.position);
       
-      // Temporarily disable physics to allow forced positioning
-      const hadDynamicBody = obj.hasAttribute('physx-body','dynamic');
-      if (hadDynamicBody) {
-        obj.removeAttribute('physx-body');
-      }
+      
       
       // Set to original position, rotation, and scale
       obj.setAttribute('position', originalState.position);
       obj.setAttribute('rotation', originalState.rotation);
       obj.setAttribute('scale', originalState.scale);
       
-      // Re-enable physics after a delay
-      setTimeout(() => {
-        if (hadDynamicBody) {
-          obj.setAttribute('physx-body','dynamic');
-        }
-      }, 100);
+      
       
     } else {
       // Fallback: use hardcoded original positions if no stored state
@@ -1422,7 +1413,7 @@ Removed superhands controller support and replaced with handy-controls which sup
       <a-mixin id="course-object-interactive" 
                shadow="receive:true;"
 			   physx-body="type:dynamic; mass:2; emitCollisionEvents: true"
-			   physx-collider toggle-physx-body
+			   physx-collider 
                ></a-mixin>
       
       <!-- Button mixin-- detect collisions with hands -->
