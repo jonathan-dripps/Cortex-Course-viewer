@@ -34,7 +34,7 @@
     };
     
     // Initialise active module year
-    window.activeModuleYear = 'all';
+    window.activeModuleYear = '';
     
     // Available environments for cycling
     window.availableEnvironments = [
@@ -202,16 +202,19 @@
     window.storeOriginalStates = function() {
       console.log("Storing original object states");
       const courseObjects = document.querySelectorAll('[course-object]');
+	  
+	  window.originalObjectStates = []; 
+	  
       courseObjects.forEach((obj) => {
         const id = obj.id || obj.getAttribute('course-object').course;
-        const position = obj.getAttribute('position');
-        const rotation = obj.getAttribute('rotation') || {x: 0, y: 0, z: 0};
-        const scale = obj.getAttribute('scale') || {x: 1, y: 1, z: 1};
+        const position = obj.object3D.position;
+		const rotation =  obj.object3D.rotation;
+		const scale = obj.object3D.scale;
         
         window.originalObjectStates.push({
           id: id,
           element: obj,
-          position: position,
+          position: { x: position.x, y: position.y, z: position.z },
           rotation: rotation,
           scale: scale
         });
@@ -221,96 +224,75 @@
     };
     
     // Reset objects to their original positions
-    window.resetObjects = function() {
+window.resetObjects = function () {
   console.log("Resetting objects to original positions");
-  
-  // Clear all pedestals first
-  for (const pedId in window.occupiedPedestals) {
-    window.occupiedPedestals[pedId] = null;
-  }
-  
-  // Reset panel content
-  const panels = ["overview-content", "main-content", "compare-content"];
-  panels.forEach(panelId => {
-    window.updatePanelContent(panelId, null);
-  });
-  
-  // Reset active module year and panel content
-  window.activeModuleYear = 'all';
-  window.activePanelContent = {
-    "overview-content": "overview",
-    "main-content": "overview", 
-    "compare-content": "overview"
-  };
-  
-  // Get all course objects and reset them to original positions
+
+  // Clear any UI or panel states as needed (your existing logic)...
+
   const courseObjects = document.querySelectorAll('[course-object]');
-  
+
   courseObjects.forEach((obj) => {
-    const courseId = obj.getAttribute('course-object').course;
-    console.log(`Resetting ${courseId} to original position`);
-    
-    // Find the original state for this object
-    let originalState = null;
-    if (window.originalObjectStates && window.originalObjectStates.length > 0) {
-      originalState = window.originalObjectStates.find(state => state.id === courseId);
+    const courseAttr = obj.getAttribute('course-object');
+    if (!courseAttr || !courseAttr.course) {
+      console.warn('Invalid course-object attribute', obj);
+      return;
     }
-    
-    // If we have stored original state, use it
-    if (originalState) {
-      console.log(`Using stored position for ${courseId}:`, originalState.position);
-      
-      
-      
-      // Set to original position, rotation, and scale
-      obj.setAttribute('position', originalState.position);
-      obj.setAttribute('rotation', originalState.rotation);
+    const courseId = courseAttr.course;
+
+    const originalState = window.originalObjectStates.find(s => s.id === courseId);
+    if (!originalState) {
+      console.warn(`No original state found for ${courseId}`);
+      return;
+    }
+
+    const hadPhysx = obj.hasAttribute('physx-body');
+    if (hadPhysx) {
+      obj.removeAttribute('physx-body');
+    }
+
+    setTimeout(() => {
+      // Set position & rotation on object3D
+      obj.object3D.position.set(
+        originalState.position.x,
+        originalState.position.y,
+        originalState.position.z
+      );
+      obj.object3D.rotation.set(
+        originalState.rotation.x,
+        originalState.rotation.y,
+        originalState.rotation.z
+      );
+
+      // Set scale & update attributes for consistency
       obj.setAttribute('scale', originalState.scale);
-      
-      
-      
-    } else {
-      // Fallback: use hardcoded original positions if no stored state
-      console.log(`No stored state found for ${courseId}, using hardcoded positions`);
-      
-      const originalPositions = {
-        'CS': {x: -0.28, y: 1.3, z: -0.10},
-        'SE': {x: -0.20, y: 1.4, z: -0.22},
-        'BIT': {x: -0.07, y: 1.5, z: -0.29},
-        'CIT': {x: 0.07, y: 1.3, z: -0.29},
-        'DS': {x: 0.20, y: 1.4, z: -0.22},
-        'CE': {x: 0.28, y: 1.5, z: -0.10}
-      };
-      
-      const originalRotation = {x: 0, y: 0, z: 0};
-      const originalScale = obj.getAttribute('scale') || {x: 1, y: 1, z: 1};
-      
-      if (originalPositions[courseId]) {
-        // Temporarily disable physics
-        const hadDynamicBody = obj.hasAttribute('dynamic-body');
-        if (hadDynamicBody) {
-          obj.removeAttribute('dynamic-body');
+      obj.setAttribute('position', `${originalState.position.x} ${originalState.position.y} ${originalState.position.z}`);
+      obj.setAttribute('rotation', `${originalState.rotation.x} ${originalState.rotation.y} ${originalState.rotation.z}`);
+
+      // Re-enable physics next frame
+	  
+      setTimeout(() => {
+        if (hadPhysx == false) {
+          obj.setAttribute('physx-body', 'type: dynamic; emitCollisionEvents: true');
+		  
+		  
         }
-        
-        // Set to hardcoded original position
-        obj.setAttribute('position', originalPositions[courseId]);
-        obj.setAttribute('rotation', originalRotation);
-        obj.setAttribute('scale', originalScale);
-        
-        // Re-enable physics after a delay
-        setTimeout(() => {
-          if (hadDynamicBody) {
-            obj.setAttribute('dynamic-body', '');
-          }
-        }, 100);
-      }
-    }
-    
+      }, 50);
+    }, 50);
   });
-  
+
+	//force refresh/flushDOM?
+	//find appropriate function call?
+	var sceneEl = document.querySelector('a-scene');
+	var els = sceneEl.querySelectorAll('[course-object]');
+	for (var i = 0; i < els.length; i++) {
+	  els[i].flushToDOM(true);
+	  
+	  console.log("flushed");
+		}
+	  
+	
   console.log("Object reset complete");
 };
-    
     // Change environment to next in cycle
     window.changeEnvironment = function() {
       window.currentEnvironmentIndex = (window.currentEnvironmentIndex + 1) % window.availableEnvironments.length;
@@ -462,17 +444,20 @@
             window.changeEnvironment();
             console.log('Changed environment');
             break;
-            
+          
           case 'reset-scene':
-            window.resetObjects();
-            console.log('Reset objects');
-            break;
+            setTimeout(() => {
+			window.resetObjects();
+			console.log('Reset objects');
+			}, 50);
 
 
 
             case 'reset-scene':
-  window.resetObjects();
-  console.log('Reset objects');
+			setTimeout(() => {
+			window.resetObjects();
+			console.log('Reset objects');
+			}, 50);
   
   // Add visual feedback
   const feedbackText = document.createElement('a-entity');
@@ -731,8 +716,8 @@
             content: `${courseInfo.name}\nENTRY REQUIREMENTS\n\n${formatEntryContent(courseInfo.entry)}`
           });
         } else if (contentType === "modules") {
-          const selectedYear = window.activeModuleYear || 'all';
-          const yearText = selectedYear === 'all' ? "ALL MODULES" : `YEAR ${selectedYear} MODULES`;
+          const selectedYear = window.activeModuleYear;
+          const yearText = `YEAR ${selectedYear} MODULES`;
           updatePanelWithFormattedContent(panelText, {
             content: `${courseInfo.name}\n${yearText}\n\n${formatModulesContent(courseInfo.modules, selectedYear)}`
           });
@@ -901,36 +886,7 @@
     function formatModulesContent(modulesText, year) {
       if (!modulesText) return "No modules available";
       
-      if (year === 'all') {
-        // Show summary of all years with better formatting
-        const lines = modulesText.split('\n');
-        let formatted = '';
-        let currentYear = '';
-        let moduleCount = 0;
-        
-        for (let line of lines) {
-          if (line.includes('YEAR') && line.includes(':')) {
-            if (currentYear) formatted += '\n';
-            currentYear = line.replace(':', '');
-            formatted += `══ ${currentYear} ══\n`;
-            moduleCount = 0;
-          } else if (line.startsWith('•') && moduleCount < 2) {
-            // Extract module name and credits
-            const match = line.match(/•\s*(.*?)\s*\((\d+)\s*credits?\)/);
-            if (match) {
-              const moduleName = match[1].trim();
-              const credits = match[2];
-              // Shorten long module names
-              const shortName = moduleName.length > 25 ? 
-                moduleName.substring(0, 22) + '...' : moduleName;
-              formatted += `• ${shortName}\n  (${credits} credits)\n`;
-            }
-            moduleCount++;
-          }
-        }
-        
-        return formatted.trim();
-      } else {
+      
         // Show specific year modules with nice formatting
         const yearModules = formatModulesByYear(modulesText, year);
         const lines = yearModules.split('\n');
@@ -960,7 +916,7 @@
         }
         
         return formatted.trim();
-      }
+      
     }
     
     // Format skills data for visual display with dots
@@ -987,10 +943,6 @@
     function formatModulesByYear(modulesText, year) {
       if (!modulesText) return "Module information not available";
       
-      if (year === 'all') {
-        // Return all modules
-        return modulesText;
-      }
       
       // Extract just the specified year's modules
       const lines = modulesText.split('\n');
@@ -1105,8 +1057,8 @@
     
     comparisonData.content = `${course1}:\n${entry1}\n\n${course2}:\n${entry2}`;
   } else if (contentType === "modules") {
-    const selectedYear = window.activeModuleYear || 'all';
-    comparisonData.subtitle = selectedYear === 'all' ? "MODULE COMPARISON" : `YEAR ${selectedYear} MODULES`;
+    const selectedYear = window.activeModuleYear;
+    comparisonData.subtitle = `YEAR ${selectedYear} MODULES`;
     
     // Get top 2 modules for each course
     const modules1 = extractTopModules(course1Info.modules, selectedYear, 2);
@@ -1622,11 +1574,11 @@ Removed superhands controller support and replaced with handy-controls which sup
 
     <!-- Computer Science (Cube) -->
     <a-box	position="-0.28 0.4 1.20" 
-			color="purple" height="0.2" width= "0.2" depth="0.2"
+			color="cyan" height="0.2" width= "0.2" depth="0.2"
 			physx-body= "type: dynamic"
             mixin="course-object-interactive" class="interactive"
             course-object="course: CS">
-		<a-entity position="0 1.5 0" face-user text="value: CS; align: center; color: white; width: 30"></a-entity>
+		<a-entity position="0 0.3 0" face-user text="value: CS; align: center; color: white; width: 5"></a-entity>
 		<a-entity id="CS-handle"
               class="magnet-left magnet-right"
               data-magnet-range="0.2,0.1,360,180"
@@ -1636,23 +1588,13 @@ Removed superhands controller support and replaced with handy-controls which sup
 		</a-entity>		
     </a-box>
 	
-	
-	 <!-- temp -->
+	<!-- temp -->
 	<a-tetrahedron id="myID7" physx-body= "type: static" position="0 0.4 0" color="blue" radius="0.15"
                     mixin="course-object-interactive" class="interactive"
                     course-object="course: SE" > 
 		<a-entity id="extra handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
 		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
     </a-tetrahedron>
-	
-	<script>
-		//console.log(document.getElementById("myID7").position)
-		//console.log("THIS BIT WORKS!!");
-		document.getElementById("myID7").setAttribute('physx-body', 'type', 'dynamic');
-		console.log("changed")
-	</script>
-	
-	
 	
     <!-- Software Engineering (Pyramid) -->
     <a-tetrahedron  position="0.4 1.8 0.5" color="#ff6b6b" radius="0.15"
