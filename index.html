@@ -393,7 +393,7 @@ window.resetObjects = function () {
         // Reset position
         this.el.setAttribute('position', this.originalPosition);
         
-		if (Date.now() - this.lastPressTime < 1000) return;
+		if (Date.now() - this.lastPressTime < 1000) return; //debounce
         // Trigger action
         this.pressButton();
       });
@@ -800,10 +800,10 @@ window.resetObjects = function () {
         content.setAttribute('value', data.content);
         content.setAttribute('align', 'center');
         content.setAttribute('width', '1.6');
-        content.setAttribute('position', '0 0.1 0');
+        content.setAttribute('position', '0 0.05 0');
         content.setAttribute('color', '#ffffff');
         content.setAttribute('font', 'kelsonsans');
-        content.setAttribute('wrap-count', '32');
+        content.setAttribute('wrap-count', '42');
         contentContainer.appendChild(content);
       }
       
@@ -905,10 +905,8 @@ window.resetObjects = function () {
             if (match) {
               const moduleName = match[1].trim();
               const credits = match[2];
-              // Format module name
-              const shortName = moduleName.length > 28 ? 
-                moduleName.substring(0, 25) + '...' : moduleName;
-              formatted += `▸ ${shortName}\n  ${credits} credits\n\n`;
+              
+              formatted += `▸ ${moduleName}\n  ${credits} credits\n\n`;
             }
             count++;
           }
@@ -1050,8 +1048,9 @@ window.resetObjects = function () {
   // Format comparison based on content type
   if (contentType === "overview") {
 	console.log("Content type on overview button press:" + contentType);
-    const overview1 = truncateText(course1Info.short_overview, 60);
-    const overview2 = truncateText(course2Info.short_overview, 60);
+	//Extracts the first sentence of the short overview
+    const overview1 = truncateText(course1Info.short_overview, ".");
+    const overview2 = truncateText(course2Info.short_overview, ".");
     
     comparisonData.content = `${course1}:\n${overview1}\n\n${course2}:\n${overview2}`;
   } else if (contentType === "entry") {
@@ -1069,7 +1068,7 @@ window.resetObjects = function () {
     const modules1 = extractTopModules(course1Info.modules, selectedYear, 2);
     const modules2 = extractTopModules(course2Info.modules, selectedYear, 2);
     
-    comparisonData.content = `${course1}:\n${modules1}\n\n${course2}:\n${modules2}`;
+    comparisonData.content = `YEAR ${selectedYear}\n\n${course1}:\n${modules1}\n\n${course2}:\n${modules2}`;
   } else if (contentType === "skills") {
   console.log("Content type :" + contentType);
     // Compare top skills
@@ -1109,11 +1108,8 @@ function extractTopModules(modulesText, year, count) {
     if (line.startsWith('•') && modules.length < count) {
       // Shorten module names for comparison view
       const moduleName = line.split('(')[0].trim();
-      if (moduleName.length > 25) {
-        modules.push(moduleName.substring(0, 25) + '...');
-      } else {
         modules.push(line);
-      }
+      
     }
   }
   console.log("Tried to compare modules");
@@ -1159,11 +1155,10 @@ function formatTopSkills(radarData, count) {
     };
     
     // Helper function to truncate text
-    function truncateText(text, maxLength) {
+    function truncateText(text, character) {
       if (!text) return "Not available";
-      if (text.length <= maxLength) return text;
-      
-      return text.substring(0, maxLength) + "...";
+      //text is cut at character specified when called
+      return text.substring(0, text.indexOf(character)) + "...";
     }
     
     // Course object component | **Needs Reworking to work with hand interaction**
@@ -1462,7 +1457,7 @@ Removed superhands controller support and replaced with handy-controls which sup
 
 <!-- Ceiling to prevent objects from going too high - wider and longer  -->
 <a-box physx-body="type: static" position="0 2 0" width="10" height="0.1" depth="10" visible="false"></a-box>
--->
+
     <!-- OVERVIEW Panel -->
     <a-entity id="overview-panel" position="0 1.8 -1.5" rotation="0 0 0">
       <a-entity class="panel">
