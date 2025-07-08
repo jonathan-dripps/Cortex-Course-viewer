@@ -279,9 +279,7 @@ window.resetObjects = function () {
       }, 50);
     }, 50);
   });
-
-	//force refresh/flushDOM?
-	//find appropriate function call?
+  
 	var sceneEl = document.querySelector('a-scene');
 	var els = sceneEl.querySelectorAll('[course-object]');
 	for (var i = 0; i < els.length; i++) {
@@ -395,6 +393,7 @@ window.resetObjects = function () {
         // Reset position
         this.el.setAttribute('position', this.originalPosition);
         
+		if (Date.now() - this.lastPressTime < 1000) return;
         // Trigger action
         this.pressButton();
       });
@@ -496,7 +495,7 @@ window.resetObjects = function () {
               } else if (data.targetPanel === "compare-content") {
                 // For comparison panel, we'll need special handling
                 window.updateComparisonPanel();
-                return;
+                //return;
               }
               
               if (courseId) {
@@ -530,12 +529,16 @@ window.resetObjects = function () {
             
             // Get course ID from pedestal
             let courseId;
+			
+			
+			
             if (panelId === "overview-content") {
               courseId = window.occupiedPedestals["pedestal-overview"];
             } else if (panelId === "compare-content") {
               // For comparison, update the comparison with the selected year
+			  window.activePanelContent[panelId] = "modules";
               window.updateComparisonPanel();
-              return;
+              return;//exit early
             }
             
             if (courseId) {
@@ -939,7 +942,7 @@ window.resetObjects = function () {
       
       return formatted.trim();
     }
-    // Format modules by specific year or all years
+    // Format modules by specific year
     function formatModulesByYear(modulesText, year) {
       if (!modulesText) return "Module information not available";
       
@@ -1037,7 +1040,7 @@ window.resetObjects = function () {
   
   // Get the active content type for comparison
   const contentType = window.activePanelContent["compare-content"] || "overview";
-  
+  console.log("Content type at the start:" + contentType);
   let comparisonData = {
     title: `${course1} vs ${course2}`,
     subtitle: contentType.toUpperCase(),
@@ -1046,26 +1049,29 @@ window.resetObjects = function () {
   
   // Format comparison based on content type
   if (contentType === "overview") {
+	console.log("Content type on overview button press:" + contentType);
     const overview1 = truncateText(course1Info.short_overview, 60);
     const overview2 = truncateText(course2Info.short_overview, 60);
     
     comparisonData.content = `${course1}:\n${overview1}\n\n${course2}:\n${overview2}`;
   } else if (contentType === "entry") {
+  console.log("Content type on entry button press:" + contentType);
     // Extract just the grades for cleaner comparison
     const entry1 = extractGrades(course1Info.entry);
     const entry2 = extractGrades(course2Info.entry);
     
     comparisonData.content = `${course1}:\n${entry1}\n\n${course2}:\n${entry2}`;
   } else if (contentType === "modules") {
+	console.log("Content type on modules button press:" + contentType);
     const selectedYear = window.activeModuleYear;
     comparisonData.subtitle = `YEAR ${selectedYear} MODULES`;
-    
     // Get top 2 modules for each course
     const modules1 = extractTopModules(course1Info.modules, selectedYear, 2);
     const modules2 = extractTopModules(course2Info.modules, selectedYear, 2);
     
     comparisonData.content = `${course1}:\n${modules1}\n\n${course2}:\n${modules2}`;
   } else if (contentType === "skills") {
+  console.log("Content type :" + contentType);
     // Compare top skills
     if (course1Info.radar && course2Info.radar) {
       const skills1 = formatTopSkills(course1Info.radar, 3);
@@ -1075,6 +1081,8 @@ window.resetObjects = function () {
     } else {
       comparisonData.content = "Skills data not available\nfor comparison";
     }
+  } else {
+	console.log("No recognised content type" + contentType);
   }
   
   updatePanelWithFormattedContent(panelText, comparisonData);
@@ -1093,9 +1101,10 @@ function extractGrades(entryText) {
 
 // Helper function to extract top modules
 function extractTopModules(modulesText, year, count) {
-  const moduleLines = formatModulesByYear(modulesText, year).split('\n');
+  const yearModules = formatModulesByYear(modulesText, year);
+  const moduleLines = yearModules.split('\n');
   let modules = [];
-  
+  console.log("Tried to compare modules");
   for (let line of moduleLines) {
     if (line.startsWith('•') && modules.length < count) {
       // Shorten module names for comparison view
@@ -1107,7 +1116,7 @@ function extractTopModules(modulesText, year, count) {
       }
     }
   }
-  
+  console.log("Tried to compare modules");
   return modules.join('\n') || "No modules found";
 }
 
@@ -1284,7 +1293,6 @@ function formatTopSkills(radarData, count) {
   }, 1000);
 });
   </script>
-  <!-- Event listener to detect flat pose of hands-->
 
 
 <script>
