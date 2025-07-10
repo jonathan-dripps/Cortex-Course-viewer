@@ -19,7 +19,8 @@
   <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/handy-controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/magnet-helpers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-htmlmesh@2.4.0/build/aframe-html.min.js"></script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
   
   <!-- Setup global objects and components -->
   <script>
@@ -1281,65 +1282,28 @@ function formatTopSkills(radarData, count) {
 });
   </script>
 
-
 <script>
-  // Toggle physx body on right hand pose - updated for all objects
-  AFRAME.registerComponent('right-toggle-physx-body', {
-    init: function () {
-      var el = this.el;
-	  var sceneEl = document.querySelector('a-scene');
-
-      el.addEventListener('pose_fist', function(){
-	  els = sceneEl.querySelectorAll('.interactive');
-	  
-	  for (var i = 0; i < els.length; i++) {
-	  els[i].removeAttribute('physx-body');
-	  console.log(els[i]);
-		}
-      });
-
-    el.addEventListener('pose_flat', function(){
-	  els = sceneEl.querySelectorAll('.interactive');
-	  
-	  for (var i = 0; i < els.length; i++) {
-	  els[i].setAttribute('physx-body', 'type', 'dynamic');
-	  console.log(els[i]);
-		}
-      });
+AFRAME.registerComponent("toggle-physics", {
+  events: {
+    pickup: function() {
+      this.el.addState('grabbed');
+    },
+    putdown: function(e) {
+      this.el.removeState('grabbed');
+      if (e.detail.frame && e.detail.inputSource) {
+        const referenceSpace = this.el.sceneEl.renderer.xr.getReferenceSpace();
+        const pose = e.detail.frame.getPose(e.detail.inputSource.gripSpace, referenceSpace);
+        if (pose && pose.angularVelocity) {
+          this.el.components['physx-body'].rigidBody.setAngularVelocity(pose.angularVelocity, true);
+        }
+        if (pose && pose.linearVelocity) {
+          this.el.components['physx-body'].rigidBody.setLinearVelocity(pose.linearVelocity, true);
+        }
+      }
     }
-	});
-
-</script>
-
-<script>
-  // Toggle physx body on left hand pose 
-  AFRAME.registerComponent('left-toggle-physx-body', {
-    init: function () {
-      var el = this.el;
-	  var sceneEl = document.querySelector('a-scene');
-
-      el.addEventListener('pose_fist', function(){
-	  els = sceneEl.querySelectorAll('.interactive');
-	  
-	  for (var i = 0; i < els.length; i++) {
-	  els[i].removeAttribute('physx-body');
-	  console.log(els[i]);
-		}
-      });
-// uses relax instead of flat as poses arre inconsistent between hands https://github.com/AdaRoseCannon/handy-work/issues/16
-    el.addEventListener('pose_relax', function(){
-	  els = sceneEl.querySelectorAll('.interactive');
-	  
-	  for (var i = 0; i < els.length; i++) {
-	  els[i].setAttribute('physx-body', 'type', 'dynamic');
-	  console.log(els[i]);
-		}
-      });
-    }
-	});
-
-</script>
-
+  }
+});
+    </script>
   <style>
     body { margin: 0; overflow: hidden; }
   </style>
@@ -1355,12 +1319,12 @@ Removed superhands controller support and replaced with handy-controls which sup
     xr-mode-ui="XRMode:xr">
     <a-assets>
 	
-	
       <!-- Mixins for interactive objects -- changed to support new physx over old physics library -->
       <a-mixin id="course-object-interactive" 
                shadow="receive:true;"
 			   physx-body="type:dynamic; mass:2; emitCollisionEvents: true"
 			   physx-collider 
+			   toggle-physics
                ></a-mixin>
       
       <!-- Button mixin-- detect collisions with hands -->
@@ -1454,10 +1418,12 @@ Removed superhands controller support and replaced with handy-controls which sup
     <a-entity id="overview-panel" position="0 1.8 -1.5" rotation="0 0 0">
       <a-entity class="panel">
         <a-entity id="overview-curved-panel" position="0 0 0">
+		  
           <a-entity geometry="primitive: plane; width: 2; height: 1.2" 
                     material="color: #4ecdc4; shader: flat; side: double" 
                     position="0 0 0" rotation="0 0 0">
           </a-entity>
+		  
         </a-entity>
         <a-text value="OVERVIEW" position="0 0.65 0.05" width="2" align="center" color="white" side="double"></a-text>
         <a-text id="overview-content" class="panel-text" value="Select a course object\nto view details" 
@@ -1470,6 +1436,7 @@ Removed superhands controller support and replaced with handy-controls which sup
 		  position="0 0 0" color="#a0a0a0" height="0.05" radius="0.2" physx-body="type: static; emitCollisionEvents: true"
 		  emit-collision-test physx-collider></a-cylinder>
         </a-entity>
+		
         
        <!-- Navigation buttons positioned at the base of the pedestal -->
 <a-entity position="0 -1.1 0.9" rotation="0 0 0">
