@@ -19,7 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/handy-controls.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/handy-work@3.1.11/build/magnet-helpers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aframe-htmlmesh@2.4.0/build/aframe-html.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.25.2.min.js"></script>
 
   
   <!-- Setup global objects and components -->
@@ -727,9 +727,10 @@ window.resetObjects = function () {
             content: `${courseInfo.name}\n${yearText}\n\n${formatModulesContent(courseInfo.modules, selectedYear)}`
           });
         } else if (contentType === "skills") {
-          updatePanelWithFormattedContent(panelText, {
-            content: `${courseInfo.name}\nSKILLS PROFILE\n\n${formatSkillsContent(courseInfo.radar)}`
-          });
+		 updatePanelWithFormattedContent(panelText, {
+         content: `${courseInfo.name}\n\n\n\n\n\n\n\n\n\n\n Skills Radar Chart`
+		 });
+         formatSkillsContent (courseInfo.radar);
         }
       } else if (panelTextId === "compare-content") {
         window.updateComparisonPanel();
@@ -740,7 +741,9 @@ window.resetObjects = function () {
     function updatePanelWithFormattedContent(panelText, data) {
       // Remove old text
       panelText.setAttribute("visible", false);
-      
+      // Remove radar chart from panel
+	  const radarPanel = document.querySelector("#overview-curved-panel");
+	  radarPanel.removeAttribute('material', 'src');
       // Get parent panel
       const panel = panelText.parentNode;
       
@@ -917,23 +920,57 @@ window.resetObjects = function () {
     
     // Format skills data into a proper radar chart
     function formatSkillsContent(radarData) {
-      if (!radarData) return "No skills data available";
-      
-      let formatted = '';
-      const sortedSkills = Object.entries(radarData)
-        .sort((a, b) => b[1] - a[1]);
-      
-      sortedSkills.forEach(([skill, value]) => {
-        // Create visual rating with dots
-        let dots = '';
-        for (let i = 1; i <= 5; i++) {
-          dots += i <= value ? '●' : '○';
-        }
-        
-        formatted += `${skill}\n${dots}  ${value}/5\n\n`;
+	
+	const Skills = Object.entries(radarData)
+	
+	
+	const skillArray = [];
+	const valueArray = [];
+
+	  Skills.forEach(([skill, value]) => {
+	  skillArray.push(skill);
+	  valueArray.push(value);
       });
+		
+	  console.log(skillArray);
+	  console.log(valueArray);
+	
+	console.log("formatting skills content..."); 	  
+	  if (!radarData) return "No skills data available";
       
-      return formatted.trim();
+      const chartDiv = document.createElement('div');
+      document.body.appendChild(chartDiv); // Hidden div for rendering
+      data = [
+	  {
+	  type: 'scatterpolar',
+	  r: valueArray,
+	  theta: skillArray,
+	  fill: 'toself',
+	  name: 'Group A'
+	  },
+	]
+
+	layout = {
+	  polar: {
+		radialaxis: {
+		  visible: true,
+		  range: [0, 5]
+		}
+	  }
+	}
+
+Plotly.newPlot(chartDiv, data, layout)
+console.log("graph plotted");
+// Convert Chart to Image Texture
+      const chartPlane = document.querySelector('#overview-curved-panel');
+      Plotly.toImage(chartDiv, { format: 'png', width: 800, height: 400 }).then((imgData) => {
+        chartPlane.setAttribute('material', `src: url(${imgData})`);
+        chartDiv.remove(); // Clean up hidden div
+		const panel = document.querySelector("#overview-curved-panel");
+		console.log("Properties of overview panel: ", panel.components);
+      });
+	  console.log("texture placed on overview panel");
+      return 
     }
     // Format modules by specific year
     function formatModulesByYear(modulesText, year) {
@@ -970,34 +1007,15 @@ window.resetObjects = function () {
       return result || `No modules found for Year ${year}`;
     }
     
-    // Format skills data from radar chart
-    function formatSkillsData(radarData) {
-      if (!radarData) return "Skills information not available";
-      
-      let skillsText = "Key Skills Profile:\n\n";
-      
-      // Sort skills by value (highest first)
-      const sortedSkills = Object.entries(radarData)
-        .sort((a, b) => b[1] - a[1]);
-      
-      // Format each skill with a visual bar
-      sortedSkills.forEach(([skill, value]) => {
-        // Create a visual bar using symbols
-        let bar = '';
-        for (let i = 0; i < 5; i++) {
-          bar += i < value ? '■' : '□';
-        }
-        
-        skillsText += `${skill}: ${bar} (${value}/5)\n`;
-      });
-      
-      return skillsText;
-    }
+ 
     
     window.updateComparisonPanel = function() {
   const panelText = document.getElementById("compare-content");
   if (!panelText) return;
-  
+  //clear radar chart from compare panel
+  const radarPanel = document.querySelector("#compare-curved-panel");
+  radarPanel.removeAttribute('material', 'src');
+	  
   const course1 = window.occupiedPedestals["pedestal-compare-1"];
   const course2 = window.occupiedPedestals["pedestal-compare-2"];
   
@@ -1066,12 +1084,10 @@ window.resetObjects = function () {
     comparisonData.content = `YEAR ${selectedYear} MODULES\n\n${course1}:\n${modules1}\n\n${course2}:\n${modules2}`;
   } else if (contentType === "skills") {
   console.log("Content type :" + contentType);
-    // Compare top skills
+    // Compare skills in a radar chart
     if (course1Info.radar && course2Info.radar) {
-      const skills1 = formatTopSkills(course1Info.radar, 3);
-      const skills2 = formatTopSkills(course2Info.radar, 3);
+      formatSkills(course1Info, course2Info);
       
-      comparisonData.content = `${course1}:\n${skills1}\n\n${course2}:\n${skills2}`;
     } else {
       comparisonData.content = "Skills data not available\nfor comparison";
     }
@@ -1110,22 +1126,71 @@ function extractTopModules(modulesText, year, count) {
 }
 
 // Helper function to format top skills
-function formatTopSkills(radarData, count) {
-  const sortedSkills = Object.entries(radarData)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, count);
+function formatSkills(course1info, course2info) {
   
-  let formatted = '';
-  sortedSkills.forEach(([skill, value]) => {
-    let bar = '';
-    for (let i = 1; i <= 5; i++) {
-      bar += i <= value ? '█' : '░';
+  const radar1 = course1info.radar;
+  const radar2 = course2info.radar;
+  
+  const skills1radar = Object.entries(radar1);
+  const skills2radar = Object.entries(radar2);
+  // format skills for course 1 into arrays
+  const skills1Array = [];
+  const values1Array = [];
+  
+  skills1radar.forEach(([skill, value]) => {
+	  skills1Array.push(skill);
+	  values1Array.push(value);
+      });
+  // format skills for course 2 into arrays
+  const skills2Array = [];
+  const values2Array = [];
+  
+  skills2radar.forEach(([skill, value]) => {
+	  skills2Array.push(skill);
+	  values2Array.push(value);
+      });
+  
+const chartDiv = document.createElement('div');
+      document.body.appendChild(chartDiv); // Hidden div for rendering
+      data = [
+	  {
+	  type: 'scatterpolar',
+	  r: values1Array,
+	  theta: skills1Array,
+	  fill: 'toself',
+	  name: course1info.name
+	  },
+	  {
+	  type: 'scatterpolar',
+	  r: values2Array,
+	  theta: skills2Array,
+	  fill: 'toself',
+	  name: course2info.name
+	  }
+	]
+
+	layout = {
+	  polar: {
+		radialaxis: {
+		  visible: true,
+		  range: [0, 5]
+		}
+	  }
+	}
+
+Plotly.newPlot(chartDiv, data, layout)
+console.log("graph plotted");
+// Convert Chart to Image Texture
+      const chartPlane = document.querySelector('#compare-curved-panel');
+      Plotly.toImage(chartDiv, { format: 'png', width: 800, height: 400 }).then((imgData) => {
+        chartPlane.setAttribute('material', `src: url(${imgData})`);
+        chartDiv.remove(); // Clean up hidden div
+		const panel = document.querySelector("#compare-curved-panel");
+		console.log("Properties of overview panel: ", panel.components);
+      });
+	  console.log("texture placed on overview panel");
+      return 
     }
-    formatted += `${skill}: ${bar}\n`;
-  });
-  
-  return formatted.trim();
-}
     
     // Helper to get courses on a given panel's pedestals
     window.getCoursesOnPedestals = function(panelElementId) {
@@ -1283,6 +1348,7 @@ function formatTopSkills(radarData, count) {
   </script>
 
 <script>
+// toggle physics for interactions between objects and hands 
 AFRAME.registerComponent("toggle-physics", {
   events: {
     pickup: function() {
@@ -1308,9 +1374,7 @@ AFRAME.registerComponent("toggle-physics", {
     body { margin: 0; overflow: hidden; }
   </style>
 </head>
-<!-- 
-Removed superhands controller support and replaced with handy-controls which supports both controllers and hand tracking
--->
+<!-- Removed superhands controller support and replaced with handy-controls which supports both controllers and hand tracking -->
 <body>
 
  <a-scene
@@ -1345,7 +1409,7 @@ Removed superhands controller support and replaced with handy-controls which sup
       id="cameraRig"
       simple-navmesh-constraint="navmesh:.navmesh;fall:0.5;height:0;exclude:.navmesh-hole;"
       movement-controls="speed:0.15;camera:#head;"
-      position="0 0 0" rotation="0 120 0" origin-on-ar-start
+      position="0 0 0" rotation="0 0 0" origin-on-ar-start
     >
       <!-- camera -->
       <a-entity id="head"
@@ -1372,8 +1436,8 @@ Removed superhands controller support and replaced with handy-controls which sup
         
         <!-- These get drawn towards grabable objects, moving the whole hand and the attached elements-->
 		<!-- The poses on stopEvents are different as the poses are inconsistent between hands https://github.com/AdaRoseCannon/handy-work/issues/16 -->
-        <a-entity id="right-magnet" data-right="grip" data-magnet="magnet-right" grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#right-no-magnet;" right-toggle-physx-body></a-entity>
-		<a-entity id="left-magnet" data-left="grip"  data-magnet="magnet-left"  grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_relax_fuseShort,squeezeend;noMagnetEl:#left-no-magnet;" left-toggle-physx-body></a-entity>
+        <a-entity id="right-magnet" data-right="grip" data-magnet="magnet-right" grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_flat_fuseShort,squeezeend;noMagnetEl:#right-no-magnet;"></a-entity>
+		<a-entity id="left-magnet" data-left="grip"  data-magnet="magnet-left"  grab-magnet-target="startEvents:squeezestart,pose_fist;stopEvents:pose_relax_fuseShort,squeezeend;noMagnetEl:#left-no-magnet;"></a-entity>
         <!-- markers to let us know the real location of the hands, you probably want to make them visible="false" or just make them empty <a-entities> -->
         <a-entity id="left-no-magnet" data-left="grip" data-no-magnet></a-entity>
         <a-entity id="right-no-magnet" data-right="grip" data-no-magnet></a-entity>
@@ -1417,14 +1481,13 @@ Removed superhands controller support and replaced with handy-controls which sup
     <!-- OVERVIEW Panel -->
     <a-entity id="overview-panel" position="0 1.8 -1.5" rotation="0 0 0">
       <a-entity class="panel">
-        <a-entity id="overview-curved-panel" position="0 0 0">
+        <a-plane id="overview-curved-panel" position="0 0 0"
+		  width=  "2"; height= "1.2" 
+          material="color: #4ecdc4; shader: flat; side: double" 
+          position="0 0 0" rotation="0 0 0">
+          
 		  
-          <a-entity geometry="primitive: plane; width: 2; height: 1.2" 
-                    material="color: #4ecdc4; shader: flat; side: double" 
-                    position="0 0 0" rotation="0 0 0">
-          </a-entity>
-		  
-        </a-entity>
+        </a-plane>
         <a-text value="OVERVIEW" position="0 0.65 0.05" width="2" align="center" color="white" side="double"></a-text>
         <a-text id="overview-content" class="panel-text" value="Select a course object\nto view details" 
                 position="0 0.35 0.05" width="1.5" align="center" color="white" side="double"></a-text>
@@ -1490,12 +1553,11 @@ Removed superhands controller support and replaced with handy-controls which sup
     <!-- COMPARE Panel -->
     <a-entity id="compare-panel" position="0 1.8 0" rotation="0 120 0">
       <a-entity class="panel" position="0 0 -1.8">
-        <a-entity id="compare-curved-panel" position="0 0 0">
-          <a-entity geometry="primitive: plane; width: 2; height: 1.2" 
-                    material="color: #ffd166; shader: flat; side: double" 
-                    position="0 0 0" rotation="0 0 0">
-          </a-entity>
-        </a-entity>
+        <a-plane id="compare-curved-panel" position="0 0 0"
+            width = "2"; height= "1.2" 
+			material="color: #ffd166; shader: flat; side: double" 
+			position="0 0 0" rotation="0 0 0">
+        </a-plane>
         <a-text value="COMPARE" position="0 0.65 0.05" width="2" align="center" color="white" side="double"></a-text>
         <a-text id="compare-content" class="panel-text" value="Compare courses by placing\ntwo objects on the pedestals" 
                 position="0 0.35 0.05" width="1.5" align="center" color="white" side="double"></a-text>
@@ -1555,7 +1617,10 @@ Removed superhands controller support and replaced with handy-controls which sup
     <a-tetrahedron  position="0 2 0" color="#ff6b6b" radius="0.15"
                     mixin="course-object-interactive" class="interactive"
                     course-object="course: SE"> 
-		<a-entity id="SE handle" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0 0.1 -0.1" rotation="0 90 0"></a-entity>
+	<!--	<a-entity id="SE handle 1" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="-0.075 -0.075 0.075" scale="0.3 0.3 0.3" rotation="0 90 0" ></a-entity>
+		<a-entity id="SE handle 2" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0.075 0.075 0.075" scale="0.3 0.3 0.3" rotation="0 0 0" ></a-entity> 
+		<a-entity id="SE handle 3" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="-0.075 0.075 -0.075" scale="0.3 0.3 0.3" rotation="0 180 0" ></a-entity>-->
+		<a-entity id="SE handle 4" data-magnet-range="0.2,0.1,360,180" data-pick-up="parent" class="magnet-left magnet-right" position="0.075 -0.075 -0.075" scale="0.3 0.3 0.3" rotation="0 270 0" ></a-entity> 
 		<a-entity position="0 0.3 0" face-user text="value: SE; align: center; color: white; width: 5"></a-entity>
         <a-entity geometry="primitive: sphere; radius: 0.2" 
                 material="color: #ff6b6b; opacity: 0.0; transparent: true"></a-entity>
